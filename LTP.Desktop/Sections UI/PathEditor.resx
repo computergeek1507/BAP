@@ -121,12 +121,12 @@
     <value>17, 17</value>
   </metadata>
   <data name="label3.Text" xml:space="preserve">
-    <value>A path is serie of numbers separated by commas representing 
-each sections of the path.
+    <value>A path is a series of numbers separated by commas 
+representing each sections of the path.
 
 Example: 0, 3, 1, 2, 0
-This example means that you have defined a path for a train that 
-will navigate on Section 0, then Section 3, then Section 1 and back
-to Section 0. </value>
+This example means that you have defined a path 
+for a train that will navigate on Section 0, then 
+Section 3, then Section 1 and back to Section 0.</value>
   </data>
 </root>

@@ -30,7 +30,9 @@ namespace LegoTrainProject
 		[NonSerialized]
 		int MaxCurrent = 0;
 
-		public SbrickHub(BluetoothLEDevice device, Types type) : base (device, type)
+		//modified by Tom Cook for MU function to add TrainProject project to class where need to loop thru all hubs and ports
+		//public SbrickHub(BluetoothLEDevice device, Types type) : base(device, type)
+		public SbrickHub(BluetoothLEDevice device, Types type, TrainProject project) : base (device, type, project)
 		{
 
 		}

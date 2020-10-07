@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using System.Timers;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Storage.Streams;
+using Windows.System.Power;
 using static LegoTrainProject.Port;
 
 namespace LegoTrainProject
@@ -43,9 +45,11 @@ namespace LegoTrainProject
 		private const string WEDO2_NAME_ID = "00001524-1212-efde-1523-785feabcd123"; // "1524"
 		private const string LPF2_ALL = "00001624-1212-efde-1623-785feabcd123";
 
-		public WedoHub(BluetoothLEDevice device, Types type) : base (device, type)
+		//modified by Tom Cook for MU function to add TrainProject project to class where need to loop thru all hubs and ports
+		//public WedoHub(BluetoothLEDevice device, Types type) : base(device, type)
+		public WedoHub(BluetoothLEDevice device, Types type, TrainProject project) : base (device, type, project)
 		{
-
+			
 		}
 
 		internal override async Task RenewCharacteristic()
@@ -96,7 +100,7 @@ namespace LegoTrainProject
 		internal override void InitializeNotifications()
 		{
 			//ActivatePortDevice(0x03, 0x15, 0x00, 0x00); // Activate voltage reports
-			//ActivatePortDevice(0x04, 0x14, 0x00, 0x00); // Activate current reports
+			//ActivatePortDevice(0x04, 0x14, 0x00, 0x00); // Activate current reports	}
 		}
 
 		/// <summary>
@@ -143,6 +147,9 @@ namespace LegoTrainProject
 						MainBoard.WriteLine($"Hub {Name} is connected!", Color.Green);
 
 						RestoreLEDColor();
+
+						//added by Tom Cook to update pictureBoxStatus
+						OnDataUpdated();
 					}
 					else
 						MainBoard.WriteLine("Characteristic Unreachable!", Color.Red);
@@ -162,7 +169,7 @@ namespace LegoTrainProject
 			var reader = DataReader.FromBuffer(args.CharacteristicValue);
 			byte[] data = new byte[reader.UnconsumedBufferLength];
 			reader.ReadBytes(data);
-
+			
 			this.BatteryLevel = data[0];
 		}
 
@@ -212,6 +219,9 @@ namespace LegoTrainProject
 							if (MainBoard.showColorDebug)
 								MainBoard.WriteLine($"{Name} - Distance Received: " + distance + " last triggers was " + (Environment.TickCount - port.LastDistanceTick));
 
+							//modified by Tom Cook for actually distance
+							//port.LatestDistance = (int)distance;
+							port.distance = (1.7f * distance) + 2.5f;
 							port.LatestDistance = (int)distance;
 
 							if (Environment.TickCount - port.LastDistanceTick > port.DistanceColorCooldownMs)
@@ -240,6 +250,7 @@ namespace LegoTrainProject
 
 							break;
 						}
+
 				}
 			}
 
@@ -331,7 +342,7 @@ namespace LegoTrainProject
 											distance = (int)((val - 220) / 150f * 10f);
 
 											if (MainBoard.showColorDebug)
-												MainBoard.WriteLine($"{Name} - Distance Received: " + distance + " last triggers was " + (Environment.TickCount - port.LastDistanceTick));
+												MainBoard.WriteLine($"{Name} - Tom Distance Received: " + distance + " last triggers was " + (Environment.TickCount - port.LastDistanceTick));
 
 											if (Environment.TickCount - port.LastDistanceTick > port.DistanceColorCooldownMs)
 											{

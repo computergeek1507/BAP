@@ -8,12 +8,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static LegoTrainProject.PFxHub;
+using System.Linq.Expressions;
+using Microsoft.VisualBasic.Devices;
+using System.Media;
+using System.Drawing.Drawing2D;
 
 namespace LegoTrainProject
 {
 	public partial class HubControl : UserControl
 	{
 		private Hub Hub;
+
+		// added by Tom Cook to have a project of all connected hubs for MU function
+		private TrainProject Project;
+		
 		HubEditor Editor;
 		bool hubIsTrain = false;
 
@@ -21,13 +29,20 @@ namespace LegoTrainProject
 		public delegate void RefreshUIThreadSafeDelegate();
 		public event RefreshUIThreadSafeDelegate PortTypeRefreshed;
 
-		public HubControl(Hub hub)
+		//modified by Tom Cook for MU function to add TrainProject project to class where need to loop thru all hubs and ports
+		//public HubControl(Hub hub)
+		public HubControl(Hub hub, TrainProject project)
 		{
 			Hub = hub;
 			Hub.PortTypeUpdated += RefreshUI;
 			Hub.DataUpdated += UpdateLabels;
 
-			Editor = new HubEditor(Hub);
+			//modified by Tom Cook, see above
+			//Editor = new HubEditor(Hub);
+			Editor = new HubEditor(Hub, project);
+
+			//added by Tom Cook, see above
+			Project = project;
 
 			InitializeComponent();
 			InitControl();
@@ -46,6 +61,9 @@ namespace LegoTrainProject
 						{
 							width += 65;
 
+							//added by Tom Cook to increase the width to accomadate larger trackbar
+							width += 5;
+
 							PictureBox pb = new PictureBox();
 							pb.Width = 30;
 							pb.Height = 30;
@@ -62,34 +80,40 @@ namespace LegoTrainProject
 
 							TrackBar tb = new TrackBar();
 							tb.Width = 50;
-							tb.Height = 100;
+							tb.Height = 142;
 							tb.Minimum = -100;
 							tb.Maximum = 100;
 							tb.TickFrequency = 10;
 							tb.Orientation = Orientation.Vertical;
 							tb.SmallChange = 10;
 							tb.LargeChange = 20;
-							tb.Margin = new Padding(15, 0, 0, 0);
+							//modified by Tom Cook for different style
+							//tb.Margin = new Padding(15, 0, 0, 0);
+							tb.Margin = new Padding(3, 0, 0, 0);
 							tb.Value = 0;
-
+							//added by Tom Cook to set color to match MU function
+							tb.TickStyle = TickStyle.Both;
+							tb.BackColor = p.MUbackcolor;
+							
 							// Connect the trackbar to the label
 							labelSpeed.Tag = tb;
 							p.label = labelSpeed;
-
 							tb.Tag = new object[] { Hub, labelSpeed, p.Id };
-							tb.Scroll += Tb_Scrolled; 
+							tb.Scroll += Tb_Scrolled;
 
 							Button buttonStop = new Button();
 							buttonStop.Text = "Stop";
 							buttonStop.Tag = new object[] { Hub, p.Id }; ;
 							buttonStop.Click += ButtonStopTrain_Click;
 							buttonStop.Width = 50;
-
+							//added by Tom Cook to pull up Stop button a little
+							buttonStop.Margin = new Padding(0, 0, 0, 0);
+							
 							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, pb, false);
 							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, labelSpeed, false);
 							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, tb, false);
 							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, buttonStop, true);
-
+		
 							break;
 						}
 					case Port.Functions.SWITCH_DOUBLECROSS:
@@ -118,12 +142,32 @@ namespace LegoTrainProject
 							buttonLeft.Tag = new object[] { Hub, p.Id, -100 }; ;
 							buttonLeft.Click += ButtonActivateSwitch_Click;
 							buttonLeft.Width = 50;
+							//added by Tom Cook to offset button
+							buttonLeft.Padding = new Padding(0, 0, 15, 0);
+							//added by Tom Cook for MU function
+							buttonLeft.BackColor = p.MUbackcolor;
+							if (p.MUbackcolor == Color.Black
+							 || p.MUbackcolor == Color.Blue
+							 || p.MUbackcolor == Color.Purple
+							 || p.MUbackcolor == Color.Green
+							 || p.MUbackcolor == Color.Red
+							) buttonLeft.ForeColor = Color.White;
 
 							Button buttonRight = new Button();
 							buttonRight.Text = "Right";
 							buttonRight.Tag = new object[] { Hub, p.Id, 100 }; ;
 							buttonRight.Click += ButtonActivateSwitch_Click;
 							buttonRight.Width = 50;
+							//added by Tom Cook to offset button
+							buttonRight.Padding = new Padding(10, 0, 0, 0);
+							//added by Tom Cook for MU function
+							buttonRight.BackColor = p.MUbackcolor;
+							if (p.MUbackcolor == Color.Black
+							 || p.MUbackcolor == Color.Blue
+							 || p.MUbackcolor == Color.Purple
+							 || p.MUbackcolor == Color.Green
+							 || p.MUbackcolor == Color.Red
+							 ) buttonRight.ForeColor = Color.White;
 
 							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, pb, false);
 							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, labelSpeed, false);
@@ -135,6 +179,9 @@ namespace LegoTrainProject
 					case Port.Functions.SENSOR:
 						{
 							width += 70;
+
+							//added by Tom Cook to widen for COLOR name
+							width += 10;
 
 							PictureBox pb = new PictureBox();
 							pb.Width = 30;
@@ -148,16 +195,74 @@ namespace LegoTrainProject
 							labelColor.Font = new Font(new FontFamily("Segoe UI"), 7.1f);
 
 							labelColor.Padding = new Padding(0, 0, 0, 0);
-							labelColor.Width = 65;
-							labelColor.Height = 80;
+							labelColor.Width = 71;
+
+							//modified by Tom Cook to format more data in box
+							//labelColor.Height = 80;
+							labelColor.Height = 47;
 
 							// Connect the trackbar to the label
 							p.label = labelColor;
 
-							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, pb, false);
-							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, labelColor, true);
+							//added by Tom Cook to add 'Black' buton
+							Button buttonBlack = new Button();
+							buttonBlack.Text = "Off";
+							buttonBlack.Tag = new object[] { Hub, p.Id, Color.Black }; ;
+							buttonBlack.Click += ButtonColor_Click;
+							buttonBlack.Width = 50;
+							//buttonBlack.Visible = Hub.Type != Hub.Types.WEDO_2_SMART_HUB;
 
-							break;
+							//added by Tom Cook to add 'Blue' button
+							Button buttonBlue = new Button();
+							buttonBlue.Text = "Blue";
+							buttonBlue.Tag = new object[] { Hub, p.Id, Color.Blue }; ;
+							buttonBlue.Click += ButtonColor_Click;
+							buttonBlue.Width = 50;
+							//buttonBlue.Visible = Hub.Type != Hub.Types.WEDO_2_SMART_HUB;
+
+							//added by Tom Cook to add 'Green' button
+							Button buttonGreen = new Button();
+							buttonGreen.Text = "Green";
+							buttonGreen.Tag = new object[] { Hub, p.Id, Color.Green }; ;
+							buttonGreen.Click += ButtonColor_Click;
+							buttonGreen.Width = 50;
+							//buttonGreen.Visible = Hub.Type != Hub.Types.WEDO_2_SMART_HUB;
+
+							//added by Tom Cook to add 'Red' button
+							Button buttonRed = new Button();
+							buttonRed.Text = "Red";
+							buttonRed.Tag = new object[] { Hub, p.Id, Color.Red }; ;
+							buttonRed.Click += ButtonColor_Click;
+							buttonRed.Width = 50;
+							//buttonRed.Visible = Hub.Type != Hub.Types.WEDO_2_SMART_HUB;
+
+							//added by Tom Cook to add 'White' button
+							Button buttonWhite = new Button();
+							buttonWhite.Text = "White";
+							buttonWhite.Tag = new object[] { Hub, p.Id, Color.White }; ;
+							buttonWhite.Click += ButtonColor_Click;
+							buttonWhite.Width = 50;
+							//buttonWhite.Visible = Hub.Type != Hub.Types.WEDO_2_SMART_HUB;
+
+							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, pb, false);
+							//modified by Tom Cook to change 'true' to 'false' so could add buttons then enter 'true'
+							//MainBoard.AddControlToFlowPanel(flowLayoutPanel1, labelColor, true);
+
+							//added by Tom Cook, see above - 'true' for end of column of elements
+							if (p.Device == Port.Devices.BOOST_DISTANCE && Hub.Type != Hub.Types.WEDO_2_SMART_HUB)
+							{
+								MainBoard.AddControlToFlowPanel(flowLayoutPanel1, labelColor, false);
+								MainBoard.AddControlToFlowPanel(flowLayoutPanel1, buttonBlack, false);
+								MainBoard.AddControlToFlowPanel(flowLayoutPanel1, buttonBlue, false);
+								MainBoard.AddControlToFlowPanel(flowLayoutPanel1, buttonGreen, false);
+								MainBoard.AddControlToFlowPanel(flowLayoutPanel1, buttonRed, false);
+								MainBoard.AddControlToFlowPanel(flowLayoutPanel1, buttonWhite, true);
+							}
+							else
+								MainBoard.AddControlToFlowPanel(flowLayoutPanel1, labelColor, true);
+
+
+								break;
 						}
 					case Port.Functions.LIGHT:
 						{
@@ -186,15 +291,42 @@ namespace LegoTrainProject
 							buttonOn.Click += ButtonOnOff_Click;
 							buttonOn.Width = 50;
 
+							//added by Tom Cook for 'Bright' button
+							Button buttonBright = new Button();
+							buttonBright.Text = "Bright";
+							buttonBright.Tag = new object[] { Hub, p.Id, 80 }; ;
+							buttonBright.Click += ButtonOnOff_Click;
+							buttonBright.Width = 50;
+
+							//added by Tom Cook for 'Normal' button
+							Button buttonNormal = new Button();
+							buttonNormal.Text = "Normal";
+							buttonNormal.Tag = new object[] { Hub, p.Id, 50 }; ;
+							buttonNormal.Click += ButtonOnOff_Click;
+							buttonNormal.Width = 50;
+
+							//added by Tom Cook for 'Dim' button
+							Button buttonDim = new Button();
+							buttonDim.Text = "Dim";
+							buttonDim.Tag = new object[] { Hub, p.Id, 20 }; ;
+							buttonDim.Click += ButtonOnOff_Click;
+							buttonDim.Width = 50;
+
 							Button buttonOff = new Button();
 							buttonOff.Text = "Off";
 							buttonOff.Tag = new object[] { Hub, p.Id, 0 }; ;
 							buttonOff.Click += ButtonOnOff_Click;
 							buttonOff.Width = 50;
 
-							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, labelLight, false);
 							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, pb, false);
+							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, labelLight, false);
 							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, buttonOn, false);
+
+							//added by Tom Cook add button and make last button 'true' for end of column of elements
+							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, buttonBright, false);
+							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, buttonNormal, false);
+							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, buttonDim, false);
+
 							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, buttonOff, true);
 
 							break;
@@ -307,7 +439,9 @@ namespace LegoTrainProject
 				}
 			}
 
-			MainBoard.SetControlPropertyThreadSafe(this, "Width", (width < 110) ? 110 : width);
+			//modified by Tom Cook to increase width to show Volts and mAmps even when no devices attached to hub
+			//MainBoard.SetControlPropertyThreadSafe(this, "Width", (width < 110) ? 110 : width);
+			MainBoard.SetControlPropertyThreadSafe(this, "Width", (width < 140) ? 140 : width);
 		}
 
 		private void ButtonPlayLight_Click(object sender, EventArgs e)
@@ -356,7 +490,7 @@ namespace LegoTrainProject
 			else
 			{
 				foreach (Port p in Hub.RegistredPorts)
-					// Update the speed on the trackbar for this train if necessary
+				// Update the speed on the trackbar for this train if necessary
 					if (p.label != null)
 					{
 						if (p.Function == Port.Functions.MOTOR || p.Function == Port.Functions.TRAIN_MOTOR)
@@ -365,33 +499,101 @@ namespace LegoTrainProject
 							if (tb != null && p.Speed != tb.Value)
 							{
 								tb.Value = (p.Speed == 127) ? -1 : (p.Speed < -100) ? -100 : (p.Speed > 100) ? 100 : p.Speed;
+
+								//modified by Tom Cook for 'inverted' function
+								if (p.Inverted) tb.Value = -tb.Value;
+
 								p.label.Text = $"- Port {p.Id} -" + Environment.NewLine + $"Speed: {tb.Value}";
 							}
 						}
 						else if (p.Function == Port.Functions.SWITCH_TRIXBRIX || p.Function == Port.Functions.SWITCH_STANDARD || p.Function == Port.Functions.SWITCH_DOUBLECROSS)
 						{
+							//modified by Tom Cook for 'inverted' function. Mod not necessary, since invert check/changed in SetMotorSpeed()
 							p.label.Text = $"- Port {p.Id} -" + Environment.NewLine + "Pos: " + ((p.TargetSpeed == 0) ? "Unknown" : (p.TargetSpeed < 0) ? "Left" : "Right");
+							//if (p.Inverted)	p.label.Text = $"- Port {p.Id} -" + Environment.NewLine + "Pos: " + ((p.TargetSpeed == 0) ? "Unknown" : (p.TargetSpeed > 0) ? "Left" : "Right");
+							//else p.label.Text = $"- Port {p.Id} -" + Environment.NewLine + "Pos: " + ((p.TargetSpeed == 0) ? "Unknown" : (p.TargetSpeed < 0) ? "Left" : "Right");
 						}
 						else if (p.Function == Port.Functions.LIGHT)
 						{
-							p.label.Text = $"- Port {p.Id} - " + Environment.NewLine + "Light is " + ((p.TargetSpeed == 0) ? "Off" : "On");
+							//modified by Tom Cook to show mulitiple light settings
+							//p.label.Text = $"- Port {p.Id} - " + Environment.NewLine + "Light is " + ((p.TargetSpeed == 0) ? "Off" : "On");
+							int lightSetting = Hub.GetMotorSpeed(p.Id);
+							string lightSettingStr;
+							switch (lightSetting)
+							{
+								case 0:
+									lightSettingStr = "Off";
+									break;
+								case 20:
+									lightSettingStr = "Dim";
+									break;
+								case 50:
+									lightSettingStr = "Normal";
+									break;
+								case 80:
+									lightSettingStr = "Bright";
+									break;
+								case 100:
+									lightSettingStr = "Full";
+									break;
+								default:
+									lightSettingStr = lightSetting.ToString();
+									break;
+							}
+							p.label.Text = $"- Port {p.Id} - " + Environment.NewLine + "Light is " + Hub.GetMotorSpeed(p.Id).ToString();
 						}
 						else if (p.Function == Port.Functions.SENSOR)
 						{
 							p.label.Text = $"- Port {p.Id} - " + Environment.NewLine;
 
-							if (p.Device == Port.Devices.BOOST_DISTANCE || p.Device == Port.Devices.EV3_COLOR_SENSOR)
-								p.label.Text += "Color:" + Enum.GetName(typeof(Port.Colors), p.LatestColor) + Environment.NewLine;
+							//modified by Tom Cook to NOT show Color & Distance (Boost) sensor with WeDo Hub
+							//if (p.Device == Port.Devices.BOOST_DISTANCE || p.Device == Port.Devices.EV3_COLOR_SENSOR)
+							if ((p.Device == Port.Devices.BOOST_DISTANCE && Hub.Type != Hub.Types.WEDO_2_SMART_HUB) || p.Device == Port.Devices.EV3_COLOR_SENSOR)
+								//p.label.Text += "Color:" + Enum.GetName(typeof(Port.Colors), p.LatestColor) + Environment.NewLine;
+								p.label.Text += "Color: " + p.LatestColor + Environment.NewLine;
 
 							if (p.Device == Port.Devices.EV3_SENSOR || p.Device == Port.Devices.NXT_SENSOR)
-								p.label.Text += "Raw : " + p.LatestDistance;
+								p.label.Text += "Raw: " + p.LatestDistance;
 							else if (p.Device != Port.Devices.EV3_COLOR_SENSOR)
-								p.label.Text += Environment.NewLine + "Distance: " + p.LatestDistance;
+							{
+								//modified by Tom Cook to show distance in absolute (0-10) and approximate cm
+								//p.label.Text += Environment.NewLine + "Distance: " + p.LatestDistance;
+								if (p.Device == Port.Devices.WEDO2_DISTANCE || (p.Device == Port.Devices.BOOST_DISTANCE && Hub.Type != Hub.Types.WEDO_2_SMART_HUB))
+									p.label.Text += "Distance: " + p.LatestDistance + Environment.NewLine + " ( ~" + p.distance.ToString("F1") + " cm )";
+								//added by Tom Cook to NOT show distance with Color & Distance (Boost) sensor connected to WeDo Hub
+								if (p.Device == Port.Devices.BOOST_DISTANCE && Hub.Type == Hub.Types.WEDO_2_SMART_HUB)
+								{
+									if (p.LatestDistance == 255) p.label.Text += "Distance: Far";
+									else p.label.Text += "Distance: Near";
+								}
+							}
 						}
 					}
 
+				//added by Tom Cook to show battery Volts and mAmps and to force initialization if necessary since System Hubs do not update
+				this.Visible = true;
+				if (Hub.Type != Hub.Types.WEDO_2_SMART_HUB)
+					lblVolts.Text = $"{train.BatteryVoltage:F2}" + " V";
+				else
+					lblVolts.Text = "";
+				//Remotes to not have current sensor, so do not display mAmps
+				if (Hub.Type != Hub.Types.POWERED_UP_REMOTE && Hub.Type != Hub.Types.WEDO_2_SMART_HUB)
+					lblAmps.Text = $"{train.BatteryCurrent:F0}" + " mA";
+				else
+					lblAmps.Text = "";
+				if (Hub.updateBatteryLevel == true && Hub.Type == Hub.Types.POWERED_UP_HUB)
+						Hub.InitializeNotifications();  //to force update/refesh to get Battery Level
+
 				// Update the Label!
-				richTextBoxLabelHub.Text = train.Name + " - " + train.BatteryLevel + "%";
+				//modified by Tom Cook to NOT display battery level for WeDo Hub
+				//richTextBoxLabelHub.Text = train.Name + " - " + train.BatteryLevel + "%";
+				if (Hub.Type == Hub.Types.WEDO_2_SMART_HUB)
+					richTextBoxLabelHub.Text = train.Name;
+				else
+					richTextBoxLabelHub.Text = train.Name + " - " + train.BatteryLevel + "%";
+
+				//added by Tom Cook to only turn-off the initialization flag if conditions are met
+				if (Hub.BatteryLevel > 0 && Hub.BatteryVoltage > 1.0) Hub.updateBatteryLevel = false;
 
 				using (Graphics g = CreateGraphics())
 				{
@@ -403,10 +605,22 @@ namespace LegoTrainProject
 				}
 
 				pictureBoxStatus.Image = (train.IsConnected) ? Port.colorBitmaps[(int)train.LEDColor] : Properties.Resources.disconnected;
-				buttonDisconnect.Visible = train.IsConnected;
+				
+				//modified by Tom Cook to comment-out visibility to keep button visible and use it for hiding whole hub panel
+				//buttonDisconnect.Visible = train.IsConnected;
+
 			}
 		}
 
+		//added by Tom Cook to change sensor color based on which button is pressed
+		private void ButtonColor_Click(object sender, EventArgs e)
+		{
+			Hub hub = (Hub)((object[])((Button)sender).Tag)[0];
+			string port = (String)((object[])((Button)sender).Tag)[1];
+			Color color = (Color)((object[])((Button)sender).Tag)[2];
+			//00=Black 03=Blue 05=Green 09=Red 0A=White FF=No object
+			hub.SetColor(port, color);
+		}
 
 		private void ButtonOnOff_Click(object sender, EventArgs e)
 		{
@@ -415,6 +629,9 @@ namespace LegoTrainProject
 			int brightness = (int)((object[])((Button)sender).Tag)[2];
 
 			hub.SetLightBrightness(port, brightness);
+
+			//added by Tom Cook to use motor speed to set light brightness value
+			hub.SetMotorSpeed(port, brightness);
 		}
 
 		private void ButtonActivateSwitch_Click(object sender, EventArgs e)
@@ -423,7 +640,19 @@ namespace LegoTrainProject
 			string port = (String)((object[])((Button)sender).Tag)[1];
 			int speed = (int)((object[])((Button)sender).Tag)[2];
 
+			//modified by Tom Cook for 'inverted' function. Mod not necessary here, since it is checked/changed in SetMotorSpeed()
 			hub.ActivateSwitch(port, speed < 0);
+			//if (hub.GetPortFromPortId(port).Inverted) hub.ActivateSwitch(port, speed > 0);
+			//else hub.ActivateSwitch(port, speed < 0);
+			
+			//added by Tom Cook for MU function
+			Port p = hub.GetPortFromPortId(port);
+			if (p.MUcolor > 0)
+				foreach (Hub hMU in Project.RegisteredTrains)
+					foreach (Port pMU in hMU.RegistredPorts)
+						if (pMU.MUcolor == p.MUcolor)
+							hMU.ActivateSwitch(pMU.Id, speed < 0);
+			
 		}
 
 		/// <summary>
@@ -438,9 +667,23 @@ namespace LegoTrainProject
 			string port = (String)((object[])((TrackBar)sender).Tag)[2];
 
 			hub.SetMotorSpeed(port, ((TrackBar)sender).Value);
-			label.Text = $"- Port {port} -" + Environment.NewLine + $"Speed: {((TrackBar)sender).Value}";
-		}
 
+			//added by Tom Cook to MU to locos when the same MUcolor is selected
+			Port p = hub.GetPortFromPortId(port);
+			if (p.MUcolor > 0)
+				foreach (Hub hMU in Project.RegisteredTrains)
+					foreach (Port pMU in hMU.RegistredPorts)
+						if (pMU.MUcolor == p.MUcolor)
+							hMU.SetMotorSpeed(pMU.Id, ((TrackBar)sender).Value);
+			
+			label.Text = $"- Port {port} -" + Environment.NewLine + $"Speed: {((TrackBar)sender).Value}";
+			//added by Tom Cook to play sound when at zero
+			if (((TrackBar)sender).Value == 0)
+            {
+				SoundPlayer simpleSound = new SoundPlayer(@"c:\Windows\Media\chimes.wav");
+				simpleSound.Play();
+			}
+		}
 
 		/// <summary>
 		/// Click on Stop a Train
@@ -451,7 +694,18 @@ namespace LegoTrainProject
 		{
 			Hub train = (Hub)((object[])((Button)sender).Tag)[0];
 			string port = (String)((object[])((Button)sender).Tag)[1];
-			train.Stop(port, true);
+			//modified by Tom Cook to NOT brake
+			//train.Stop(port, true);
+			train.Stop(port, false);
+
+			//added by Tom Cook to MU to locos when the same MUcolor is selected
+			Port p = train.GetPortFromPortId(port);
+			if (p.MUcolor > 0)
+				foreach (Hub hMU in Project.RegisteredTrains)
+					foreach (Port pMU in hMU.RegistredPorts)
+						if (pMU.MUcolor == p.MUcolor)
+							hMU.Stop(pMU.Id, false);
+		
 		}
 
 		private void ButtonConfigure_Click(object sender, EventArgs e)
@@ -477,8 +731,16 @@ namespace LegoTrainProject
 
 		private void buttonDisconnect_Click(object sender, EventArgs e)
 		{
-			Hub.Dispose();
-			UpdateHubLabel(Hub);
+			//added by Tom Cook  to use button to disconnect, and then if disconnected use it again to hide whole hub panel
+			if (!Hub.IsConnected) this.Visible = false;
+			else
+			{
+
+				Hub.Dispose();
+				UpdateHubLabel(Hub);
+
+			//added by Tom Cook, see above
+			}
 		}
 	}
 }

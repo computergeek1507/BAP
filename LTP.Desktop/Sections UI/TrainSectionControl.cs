@@ -52,8 +52,11 @@ namespace LegoTrainProject
 
 			comboBoxCurrentSection.Items.Clear();
 			comboBoxCurrentSection.Items.Add("Out of network");
-			if (!Project.Sections.IsTrainInNetwork(Train))
-				comboBoxCurrentSection.SelectedIndex = 0;
+
+			//modified by Tom Cook to ignore trains that have no path selected
+			//if (!Project.Sections.IsTrainInNetwork(Train))
+			if (!Project.Sections.IsTrainInNetwork(Train) || Train.CurrentPath == null)
+					comboBoxCurrentSection.SelectedIndex = 0;
 
 			for (int i = 0; i < Project.Sections.GetAll().Count; i++)
 			{
@@ -124,6 +127,8 @@ namespace LegoTrainProject
 			}
 		}
 
+		//modified by Tom Cook for MU function to add...
+		//private async void startButton_Click(object sender, EventArgs e)
 		private async void startButton_Click(object sender, EventArgs e)
 		{
 			if (!Project.Sections.IsRunning)
@@ -143,7 +148,9 @@ namespace LegoTrainProject
 						Train.IsPathProgramRunning = true;
 						Section currentSection = Project.Sections[Train.CurrentPath.Sections[Train.CurrentPathPositionIndex]];
 
-						await Project.Sections.ReserveNextTrainSection(currentSection, Train);
+						//modified by Tom Cook for MU function to add...
+						//await Project.Sections.ReserveNextTrainSection(currentSection, Train);
+						await Project.Sections.ReserveNextTrainSection(currentSection, Train, this.Project);
 					}
 				}
 			}

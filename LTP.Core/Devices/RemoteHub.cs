@@ -11,7 +11,9 @@ namespace LegoTrainProject
 	[Serializable]
 	class RemoteHub : Hub
 	{
-		public RemoteHub(BluetoothLEDevice device, Types type) : base(device, type)
+		//modified by Tom Cook for MU function to add TrainProject project to class where need to loop thru all hubs and ports
+		//public RemoteHub(BluetoothLEDevice device, Types type) : base(device, type)
+		public RemoteHub(BluetoothLEDevice device, Types type, TrainProject project) : base(device, type, project)
 		{
 
 		}

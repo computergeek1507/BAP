@@ -12,14 +12,19 @@ using System.Linq;
 using System.Threading;
 using static LegoTrainProject.Port;
 using System.Threading.Tasks;
+using Windows.Media.Capture;
+using System.Text;
 
 namespace LegoTrainProject
 {
     [Serializable]
     public class Hub
     {
-        // List of Services
-        [NonSerialized]
+		// added by Tom Cook to have a project of all connected hubs for MU function
+		private TrainProject Project;
+
+		// List of Services
+		[NonSerialized]
         internal GattDeviceServicesResult Gatt;
 
         // List of Characteristics
@@ -35,12 +40,11 @@ namespace LegoTrainProject
         /// </summary>
         [NonSerialized]
 		internal GattCharacteristic Characteristic;
-		
 
-        /// <summary>
-        /// Train's Name
-        /// </summary>
-        public string Name = "";
+		/// <summary>
+		/// Train's Name
+		/// </summary>
+		public string Name = "";
         public string WhenName { get { return $"When {Name}"; } }
         public string OfName { get { return $"of {Name}"; } }
 
@@ -70,19 +74,29 @@ namespace LegoTrainProject
         /// Battery Level
         /// </summary>
         [NonSerialized]
-        public double BatteryLevel = 0;
+       
+		public double BatteryLevel = 0;
+		
+		//added by Tom Cook to flag if the battery level needs to be initialized
+		public bool updateBatteryLevel = true;
 
 		/// <summary>
-		/// Battery Level
+		/// Battery Voltage
 		/// </summary>
 		[NonSerialized]
 		public double BatteryVoltage = 0;
 
+		//added by Tom Cook to add current to be read and displayed
+		/// <summary>
+		/// Battery Current
+		/// </summary>
+		[NonSerialized]
+		public double BatteryCurrent = 0;
 
-        /// <summary>
-        /// List of all Ports Connected
-        /// </summary>
-        public List<Port> RegistredPorts = new List<Port>();
+		/// <summary>
+		/// List of all Ports Connected
+		/// </summary>
+		public List<Port> RegistredPorts = new List<Port>();
 
 		/// <summary>
 		/// 
@@ -108,6 +122,10 @@ namespace LegoTrainProject
 			BOOST_MOVE_HUB = 64,
 			POWERED_UP_HUB = 65,
 			POWERED_UP_REMOTE = 66,
+
+			//added by Tom Cook to add Technic Hub to list of devices
+			TECHNIC_HUB = 128,
+
 			SBRIK = 1000,
 			WEDO = 1001,
 			PFX = 1002,
@@ -123,7 +141,10 @@ namespace LegoTrainProject
 			EV3 = 4,
 			POWERED_UP_REMOTE = 5,
 			PFX = 6,
-			BUWIZZ = 7
+			BUWIZZ = 7,
+
+			//added by Tom Cook to add Technic Hub to list of types
+			TECHNIC_HUB = 8
 		}
 
 		/// <summary>
@@ -226,8 +247,14 @@ namespace LegoTrainProject
 		/// Constructor
 		/// </summary>
 		/// <param name="characteristicToRegister"></param>
-		public Hub(BluetoothLEDevice device, Types type)
+
+		//modified by Tom Cook for MU function to add TrainProject project to class where need to loop thru all hubs and ports
+		//public Hub(BluetoothLEDevice device, Types type)
+		public Hub(BluetoothLEDevice device, Types type, TrainProject project)
 		{
+			//added by Tom Cook, see above
+			Project = project;
+
 			if (device != null)
 			{
 				Name = device.Name;
@@ -315,24 +342,25 @@ namespace LegoTrainProject
         {
             try
             {
-
-                // Assign the device to this hub
-                Device = device;
+			
+				// Assign the device to this hub
+				Device = device;
 
 				// Save the bluetooth address for reconnection purpose
 				BluetoothAddress = device.BluetoothAddress;
 
 				// Obtain a fresh Characteristics
 				await RenewCharacteristic();
-
+				
 				// If it succeeded
 				if (Characteristic != null)
-                {
-                    Thread.Sleep(1000);
+				{
+
+					Thread.Sleep(1000);
 
 					// Immediately attach to get all data from the Hub
 					Characteristic.ValueChanged += Characteristic_ValueChanged;
-					
+
 					// Ask for notifications
 					GattCommunicationStatus status = await Characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
 					if (status == GattCommunicationStatus.Success)
@@ -357,7 +385,7 @@ namespace LegoTrainProject
 				Dispose();
 			}
 
-
+			
 			OnDataUpdated();
 		}
 
@@ -367,6 +395,9 @@ namespace LegoTrainProject
 			WriteMessage(new byte[] { 0x01, 0x02, 0x02 }); // Activate button reports
 			WriteMessage(new byte[] { 0x01, 0x06, 0x02 }); // Activate button reports
 			WriteMessage(new byte[] { 0x41, 0x3c, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01 }); // Activate voltage reports
+
+			//added by Tom Cook to activate reading of current sensor
+			WriteMessage(new byte[] { 0x41, 0x3b, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01 }); // Activate Current reports
 		}
 
 		/// <summary>
@@ -410,7 +441,7 @@ namespace LegoTrainProject
                     byte[] toread = new byte[len - 1];
                     reader.ReadBytes(toread);
 
-                    // Ajusting so that the message is properly sized
+                    // Adjusting so that the message is properly sized
                     byte[] message = new byte[len];
                     System.Buffer.BlockCopy(toread, 0, message, 1, toread.Length);
 
@@ -449,11 +480,11 @@ namespace LegoTrainProject
             }
         }
 
-        private void ParseDeviceInfo(byte [] data)
+        public void ParseDeviceInfo(byte [] data)
         {
-            //MainBoard.WriteLine("Device Info Message received: " + BitConverter.ToString(data));
+			//MainBoard.WriteLine("Device Info Message received: " + BitConverter.ToString(data));
 
-            if (data[3] == 2)
+			if (data[3] == 2)
             {
                 if (data[5] == 1)
                 {
@@ -468,6 +499,9 @@ namespace LegoTrainProject
 				int fwVersion10000224 = BitConverter.ToInt32(new byte[] { 0x24, 0x02, 0x00, 0x10 }, 0);
 				int currentVersion = BitConverter.ToInt32(data, 5);
 
+				//added by Tom Cook if want to show firmware version
+				//MainBoard.WriteLine("Firmware: " + currentVersion, Color.Blue);
+
 				if (currentVersion > fwVersion10000224 && Type == Types.BOOST_MOVE_HUB)
 				{
 					UpdateBoostMovePortToLatestFirmware();
@@ -479,9 +513,17 @@ namespace LegoTrainProject
 			}
 			else if (data[3] == 0x06)
 			{
-				BatteryLevel = data[5];
+				//modified by Tom Cook to set flag to initialize battery level update
+				//BatteryLevel = data[5];
+				if (data[5] != BatteryLevel)
+				{
+					BatteryLevel = data[5];
+					updateBatteryLevel = true;   //tag trigger update/refresh of Battery Level
+				}
+
 				OnDataUpdated();
 			}
+
 		}
 
 		private void UpdateBoostMovePortToLatestFirmware()
@@ -546,18 +588,43 @@ namespace LegoTrainProject
 
         private void ParseSensorMessage(byte[] data)
         {
+			//added by Tom Cook, data for node.js info
+			//                      maxV    maxVraw   maxmA   maxmAraw
+			// Hub/unknown          9.615   3893      2444    4095
+			// DUPLO Train Base     6.4     3047       -       -
+			// Remote/Handset       6.4     3200       -       -
+			// Technic Medium Hub    -      4095      4175    4095
+
 			if (data[3] == 0x3b && (Type == Types.POWERED_UP_REMOTE || this.GetType() == typeof(RemoteHub)))
 			{ 
 				// Voltage (PUP Remote)
 				data = PadMessage(data, 6);
-				BatteryVoltage = ((double)BitConverter.ToUInt16(data, 4) / 500);
+				//modified by Tom Cook to use precise numbers according to node.js info
+				//BatteryVoltage = ((double)BitConverter.ToUInt16(data, 4) / 500);
+				BatteryVoltage = ((double)BitConverter.ToUInt16(data, 4) * 6.4 / 3200);
+				//added by Tom Cook to flag initialization when battery level does not register
+				if (BatteryVoltage == 0) updateBatteryLevel = true;
 				return;
 			}
+
+			//added by Tom Cook to get current readings
+			else if (data[3] == 0x3b && (Type != Types.POWERED_UP_REMOTE && this.GetType() != typeof(RemoteHub)))
+			{
+				// Current (PUP System Hub)
+				data = PadMessage(data, 6);
+				BatteryCurrent = ((double)BitConverter.ToUInt16(data, 4) * 2444 / 4095);
+				//added by Tom Cook to flag initialization when battery level does not register
+				if (BatteryVoltage == 0) updateBatteryLevel = true;
+				return;
+			}
+
 			else if (data[3] == 0x3c)
             { 
-				// Voltage
+				// Voltage (PUP System Hub)
                 data = PadMessage(data, 6);
-				BatteryVoltage = ((double)BitConverter.ToUInt16(data, 4) / 400);
+				//modified by Tom Cook to use precise data from node.js info
+				//BatteryVoltage = ((double)BitConverter.ToUInt16(data, 4) / 400);
+				BatteryVoltage = ((double)BitConverter.ToUInt16(data, 4) * 9.615 / 3893);
 				double batteryRaw = (double)BitConverter.ToUInt16(data, 4);
 				return;
             }
@@ -571,17 +638,21 @@ namespace LegoTrainProject
                     case Port.Devices.WEDO2_DISTANCE:
                     {
                         int distance = data[4];
-                        if (data.Length > 5 && data[5] == 1)
+						if (data.Length > 5 && data[5] == 1)
                         {
                             distance = data[4] + 255;
-                        }
+						}
 
 						if (MainBoard.showColorDebug)
 							MainBoard.WriteLine($"{Name} - Distance Received: " + distance + " last triggers was " + (Environment.TickCount - port.LastDistanceTick));
 
+						//modified by Tom Cook for actually distance
+						//port.LatestDistance = (int)distance;
+						port.distance = (1.7f * distance) + 2.5f;
 						port.LatestDistance = (int)distance;
 
-						if (Environment.TickCount - port.LastDistanceTick > port.DistanceColorCooldownMs)
+
+							if (Environment.TickCount - port.LastDistanceTick > port.DistanceColorCooldownMs)
 						{
 							DistanceTriggered?.Invoke(this, port, (int)distance);
 							OnDataUpdated();
@@ -591,47 +662,65 @@ namespace LegoTrainProject
                     }
                     case Port.Devices.BOOST_DISTANCE:
                     {
+                        if (data.Length >= 8)
+                        {
+							//modified by Tom Cook based on measured data
+							/*
+							double distance = data[5] * 1.5f;
+							double partial = data[7];
+                            double dis2 = distance;
 
-                            if (data.Length >= 8)
+                            if (partial > 0)
                             {
-                                double distance = data[5] * 1.5f;
-                                double partial = data[7];
-                                double dis2 = distance;
-
-                                if (partial > 0)
-                                {
-                                    dis2 += (1.0 / partial);
-                                }
-
-								port.LatestDistance = (int)distance;
-
-								// Trigger a distance event if at least 2 seconds have passed
-								if (Environment.TickCount - port.LastDistanceTick > port.DistanceColorCooldownMs)
-                                {
-                                    DistanceTriggered?.Invoke(this, port, (int)distance);
-                                }
-
-                                // Should we show any debugs?
-                                if (MainBoard.showColorDebug)
-                                    MainBoard.WriteLine($"{Name} - Distance: " + distance + " Color: " + data[4] + "(" + (Colors)data[4] + ") -> Partial: " + partial, (partial > 5) ? Color.Green : Color.Black);
-
-                                // We don't trigger colors unless they are close enough
-                                if (partial > 5)
-                                {
-									Colors currentColor = (Colors)data[4];
-									port.LatestColor = currentColor;
-
-									// Did at least 2 seconds passed if the color is the same as before?
-									if (Environment.TickCount - port.LastColorTick > port.DistanceColorCooldownMs)
-                                    {
-                                        ColorTriggered?.Invoke(this, port, currentColor);
-										DataUpdated();
-                                    }
-                                }
-
+								dis2 += (1.0 / partial);
                             }
-                            else
-                                MainBoard.WriteLine("ERROR: Issue with Color Packet. It was too short!!", Color.Red);
+							port.LatestDistance = (int)distance;
+							*/
+							double partial = data[7];  //used for color sensing
+							double distanceFar = data[5];
+							double distanceNear = data[7];
+							double distance = distanceFar;
+							if (distanceNear > 0) port.distance = (7f / Math.Sqrt(distanceNear)) - 1.25f;
+							else port.distance = (2f * distanceFar) + 3f;
+							port.LatestDistance = (int)distance;
+
+							// Trigger a distance event if at least 2 seconds have passed
+							if (Environment.TickCount - port.LastDistanceTick > port.DistanceColorCooldownMs)
+                            {
+								//modified by Tom Cook to use actually distance
+                                //DistanceTriggered?.Invoke(this, port, (int)distance);
+								DistanceTriggered?.Invoke(this, port, (int)port.distance);
+
+								//added by Tom Cook to force distance update
+								DataUpdated();
+                            }
+
+                            // Should we show any debugs?
+                            if (MainBoard.showColorDebug)
+								//modified by Tom Cook to show raw data
+                                //MainBoard.WriteLine($"{Name} - Distance: " + distance + " Color: " + data[4] + "(" + (Colors)data[4] + ") -> Partial: " + partial, (partial > 5) ? Color.Green : Color.Black);
+								MainBoard.WriteLine($"{Name} - Far Distance (Data[5]): " + data[5] + "   Near Distance/Partial (Data[7]): " + data[7] + "   Color Code (data[4]): " + data[4] + " (" + (Colors)data[4] + ")");
+
+							// We don't trigger colors unless they are close enough
+
+							//modified by Tom Cook to change sensitivity to 2, still finicky
+							//if (partial > 5)
+							if (partial > 2)
+                            {
+								Colors currentColor = (Colors)data[4];
+								port.LatestColor = currentColor;
+
+								// Did at least 2 seconds passed if the color is the same as before?
+								if (Environment.TickCount - port.LastColorTick > port.DistanceColorCooldownMs)
+                                {
+                                    ColorTriggered?.Invoke(this, port, currentColor);
+									DataUpdated();
+                                }
+                            }
+
+                        }
+                        else
+                            MainBoard.WriteLine("ERROR: Issue with Color Packet. It was too short!!", Color.Red);
                             
                         break;
                     }
@@ -674,6 +763,25 @@ namespace LegoTrainProject
             }
         }
 
+		// added by Tom Cook
+		public bool Rename(string name)
+        {
+			if (name.Length > 14)
+				return false;
+			
+			byte[] preamble = { 0x01, 0x01, 0x01 };
+			byte[] data = Encoding.ASCII.GetBytes(name);
+			byte[] bytes = new byte[preamble.Length + data.Length];
+            System.Buffer.BlockCopy(preamble, 0, bytes, 0, preamble.Length);
+			System.Buffer.BlockCopy(data, 0, bytes, preamble.Length, data.Length);
+			// Send this twice, as sometimes the first time doesn't take
+			//await this.send(data, Consts.BLECharacteristic.LPF2_ALL);
+			//await this.send(data, Consts.BLECharacteristic.LPF2_ALL);
+			WriteMessage(bytes);
+			WriteMessage(bytes);
+			return true;
+		}
+
         protected void WriteMessage(byte[] message)
         {
             WriteMessage(message, true);
@@ -709,7 +817,9 @@ namespace LegoTrainProject
 
 		public virtual void Disconnect()
 		{
-			if (Type == Types.POWERED_UP_HUB || Type == Types.BOOST_MOVE_HUB)
+			//added by Tom Cook to include Technic Hub
+			//if (Type == Types.POWERED_UP_HUB || Type == Types.BOOST_MOVE_HUB)
+			if (Type == Types.POWERED_UP_HUB || Type == Types.BOOST_MOVE_HUB || Type == Types.TECHNIC_HUB)
 				WriteMessage(new byte[] { 0x02, 0x01 });
 		}
 
@@ -762,13 +872,16 @@ namespace LegoTrainProject
         /// <param name="speed"></param>
         public virtual void SetMotorSpeed(string port, int speed)
         {
-            byte[] message;
-            Port portObj = GetPortFromPortId(port);
+			byte[] message;
+			Port portObj = GetPortFromPortId(port);
 
-            // If we can't find the port, we can't do anything!
-            if (portObj == null)
+			//added by Tom Cook for invert function; do not invert if Stop (127) command is issued
+			if (portObj.Inverted && speed!= 127) speed = -speed;
+
+			// If we can't find the port, we can't do anything!
+			if (portObj == null)
             {
-                MainBoard.WriteLine("Could not set Motor Speed to " + speed + " for " + Name + " because no default port are setup", Color.Red);
+				MainBoard.WriteLine("Could not set Motor Speed to " + speed + "  for " + Name + " because no default port is setup", Color.Red);
                 return;
             }
 
@@ -780,12 +893,12 @@ namespace LegoTrainProject
                 if (portObj.Id == "AB")
                 {
                     message = new byte[] { 0x81, (byte)portObj.Value, 0x11, 0x02, (byte)speed, (byte)speed, 0x64, 0x7f, 0x03 };
-                }
-                else
+				}
+				else
                 {
                     message = new byte[] { 0x81, (byte)portObj.Value, 0x11, 0x01, (byte)speed, 0x64, 0x7f, 0x03 };
-                }
-            }
+				}
+			}
             // ELSE TRAIN HUB
             else
             {
@@ -794,14 +907,14 @@ namespace LegoTrainProject
                     byte p = 57;
                     byte s = (byte)speed;
                     message = new byte[] { 0x81, p, 0x11, 0x02, (byte)speed, (byte)speed };
-                }
-                else
+				}
+				else
                 {
                     byte s = (byte)speed;
                     byte p = (port == "A") ? (byte)0x00 : (byte)0x01;
 					message = new byte[] { 0x81, (byte)portObj.Value, 0x11, 0x51, 0x00, (byte)speed };
 					//message = new byte[] { 0x81, p, 0x11, 0x60, 0x00, (byte)speed, 0x00, 0x00 };
-                }
+				}
             }
 
 			portObj.Speed = speed;
@@ -824,6 +937,31 @@ namespace LegoTrainProject
 			}
 
 			byte[] message = new byte[] { 0x81, (byte)portObj.Value, 0x11, 0x51, 0x00, (byte)brightness };
+			WriteMessage(message);
+
+		}
+
+		//added by Tom Cook to set the color
+		public virtual void SetColor(string port, Color color)
+		{
+			Port portObj = GetPortFromPortId(port);
+			// If we can't find the port, we can't do anything!
+			if (portObj == null)
+			{
+				MainBoard.WriteLine("Could not set Color for " + Name + " because no default port is setup", Color.Red);
+				return;
+			}
+			byte colorByte;
+			//00=Black 03=Blue 05=Green 09=Red 0A=White FF=No object
+			if (color == Color.Black) colorByte = 00;
+			else if (color == Color.Blue) colorByte = 03;
+			else if (color == Color.Green) colorByte = 05;
+			else if (color == Color.Red) colorByte = 09;
+			else if (color == Color.White) colorByte = 0x0A;
+			else colorByte = 00;
+
+			//byte[] message = new byte[] { 0x05, (byte)portObj.Value, 0x09 };
+			byte[] message = new byte[] { 0x81, (byte)portObj.Value, 0x11, 0x51, 0x05, colorByte};
 			WriteMessage(message);
 
 		}
@@ -974,10 +1112,12 @@ namespace LegoTrainProject
 						targetPort.TargetSpeed = (left) ? -100 : 100;
 						SetMotorSpeed(port, targetPort.TargetSpeed);
 
-						System.Timers.Timer timer = new System.Timers.Timer(500);
+						//modified by Tom Cook for shorter timer duration
+						//System.Timers.Timer timer = new System.Timers.Timer(500);
+						System.Timers.Timer timer = new System.Timers.Timer(200);
 						timer.Elapsed += (object sender, ElapsedEventArgs ev) =>
 						{
-							// Stop it after 700ms 
+							// Stop it after 500ms 
 							timer.Stop();
 							Stop(port, true);
 						};
@@ -1006,7 +1146,7 @@ namespace LegoTrainProject
         {
 			foreach (Port p in RegistredPorts)
 				if (p.Speed != 0)
-					Stop(p.Id, true);
+					Stop(p.Id, false);
         }
 
 		public void Stop(string port)
@@ -1031,7 +1171,9 @@ namespace LegoTrainProject
 				SetMotorSpeed(port, 0);
 			else
 			{
-				if (Type == Types.POWERED_UP_HUB || Type == Types.BOOST_MOVE_HUB)
+				//modified by Tom Cook to include Technic Hub
+				//if (Type == Types.POWERED_UP_HUB || Type == Types.BOOST_MOVE_HUB)
+				if (Type == Types.POWERED_UP_HUB || Type == Types.BOOST_MOVE_HUB || Type == Types.TECHNIC_HUB)
 					SetMotorSpeed(port, 127);
 				else
 					SetMotorSpeed(port, 0);
@@ -1039,8 +1181,8 @@ namespace LegoTrainProject
 				System.Timers.Timer timer = new System.Timers.Timer(1000);
 				timer.Elapsed += (object sender, ElapsedEventArgs ev) =>
 				{
-				// Stop it after 700ms 
-				timer.Stop();
+					// Stop it after 700ms (or 1000ms? added by Tom Cook)
+					timer.Stop();
 					SetMotorSpeed(port, 0);
 				};
 				timer.Start();
@@ -1170,6 +1312,14 @@ namespace LegoTrainProject
 			// Stop the train!
 			Stop();
 
+			//added by Tom Cook for MU function
+			Port portStop = GetPortFromPortId(TrainMotorPort);
+			if (portStop.MUcolor > 0)
+				foreach (Hub hMU in Project.RegisteredTrains)
+					foreach (Port pMU in hMU.RegistredPorts)
+						if (pMU.MUcolor == portStop.MUcolor)
+							hMU.Stop(pMU.Id);
+
 			MainBoard.WriteLine($"{Name} path has been cleared and train is stopped", Color.Red);
 		}
 
@@ -1269,6 +1419,7 @@ namespace LegoTrainProject
 				{
 					if (port.Function == Port.Functions.NOT_USED)
 						port.Function = Port.Functions.SENSOR;
+
 					ActivatePortDevice((byte)port.Value, (byte)(this.Type == Types.WEDO_2_SMART_HUB ? 0x00 : 0x08), 0, 0);
 				}
 
@@ -1294,7 +1445,10 @@ namespace LegoTrainProject
 				{
 					if (port.Function == Port.Functions.NOT_USED)
 						port.Function = Port.Functions.LIGHT;
-					SetLightBrightness(port.Id, 100);
+					SetLightBrightness(port.Id, 50);
+
+					//added by Tom Cook to use the motor speed to set the brightness level
+					SetMotorSpeed(port.Id, 50);
 				}
 
 				// Let them know the type has changed
@@ -1310,6 +1464,9 @@ namespace LegoTrainProject
 
                 MainBoard.WriteLine("Port Disconnected: " + port.Id, Color.Purple);
 				OnDataUpdated();
+
+				//added by Tom Cook to remove device info from display when disconnected
+				OnPortTypeUpdate();
 			}
 
         }

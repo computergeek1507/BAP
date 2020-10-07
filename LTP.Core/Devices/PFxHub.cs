@@ -229,7 +229,9 @@ namespace LegoTrainProject
 		[NonSerialized]
 		byte[] Rx;
 
-		public PFxHub(BluetoothLEDevice device, Types type) : base(device, type)
+		//modified by Tom Cook for MU function to add TrainProject project to class where need to loop thru all hubs and ports
+		//public PFxHub(BluetoothLEDevice device, Types type) : base(device, type)
+		public PFxHub(BluetoothLEDevice device, Types type, TrainProject project) : base(device, type, project)
 		{
 
 		}

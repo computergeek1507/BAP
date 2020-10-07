@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Web.Http;
 
 namespace LegoTrainProject
 {
@@ -78,7 +79,9 @@ namespace LegoTrainProject
 		/// <summary>
 		/// Speed of the trains on this section
 		/// </summary>
-		internal int MaxSpeed = 100;
+		//modified by Tom Cook to set default max speed to 50
+		//internal int MaxSpeed = 100;
+		internal int MaxSpeed = 50;
 
 		/// <summary>
 		/// Need not one, but the next 2 sections released before moving forward
@@ -237,7 +240,9 @@ namespace LegoTrainProject
 		/// <param name="hub"></param>
 		/// <param name="portName"></param>
 		/// <returns></returns>
-		public async Task Reserve(Section nextSection, Section currentSection, Hub hub)
+		//modified by Tom Cook for MU function to add TrainProject project to class where need to loop thru all hubs and ports
+		//public async Task Reserve(Section nextSection, Section currentSection, Hub hub)
+		public async Task Reserve(Section nextSection, Section currentSection, Hub hub, TrainProject project)
 		{
 			Section nextNextSection = null;
 
@@ -255,9 +260,21 @@ namespace LegoTrainProject
 					break;
 
 				hub.IsWaitingSection = true;
+
 				MainBoard.WriteLine($"{hub.Name} - stopped because " + nextSection.Name + " is occupied", Color.Red);
-				hub.Stop(hub.TrainMotorPort, true);
-				
+
+				//modified by Tom Cook to NOT brake
+				//hub.Stop(hub.TrainMotorPort, true);
+				hub.Stop(hub.TrainMotorPort, false);
+
+				//added by Tom Cook for MU function
+				Port portStop = hub.GetPortFromPortId(hub.TrainMotorPort);
+				if (portStop.MUcolor > 0)
+					foreach (Hub hMU in project.RegisteredTrains)
+						foreach (Port pMU in hMU.RegistredPorts)
+							if (pMU.MUcolor == portStop.MUcolor)
+								hMU.Stop(pMU.Id, false);
+
 				// We cannot go. Turn light to Red
 				if (dectector != null)
 					dectector.SetLEDColor(Port.Colors.RED);
@@ -303,7 +320,18 @@ namespace LegoTrainProject
 						break;
 
 					MainBoard.WriteLine($"{hub.Name} - stopped because " + sections[nextNextSectionId].Name + " is occupied and we need 2 sections cleared.", Color.Red);
-					hub.Stop(hub.TrainMotorPort, true);
+					//modified by Tom Cook to NOT brake
+					//hub.Stop(hub.TrainMotorPort, true);
+					hub.Stop(hub.TrainMotorPort, false);
+
+					//added by Tom Cook for MU function
+					Port portStop = hub.GetPortFromPortId(hub.TrainMotorPort);
+					if (portStop.MUcolor > 0)
+						foreach (Hub hMU in project.RegisteredTrains)
+							foreach (Port pMU in hMU.RegistredPorts)
+								if (pMU.MUcolor == portStop.MUcolor)
+									hMU.Stop(pMU.Id, false);
+
 					await Task.Delay(1000).ConfigureAwait(false);
 				}
 
@@ -319,7 +347,18 @@ namespace LegoTrainProject
 				else
 				{
 					MainBoard.WriteLine($"{hub.Name} - We stop to move switch!", Color.Red);
-					hub.Stop(hub.TrainMotorPort, true);
+					//modified by Tom Cook to NOT brake
+					//hub.Stop(hub.TrainMotorPort, true);
+					hub.Stop(hub.TrainMotorPort, false);
+
+					//added by Tom Cook for MU function
+					Port portStop = hub.GetPortFromPortId(hub.TrainMotorPort);
+					if (portStop.MUcolor > 0)
+						foreach (Hub hMU in project.RegisteredTrains)
+							foreach (Port pMU in hMU.RegistredPorts)
+								if (pMU.MUcolor == portStop.MUcolor)
+									hMU.Stop(pMU.Id, false);
+
 					currentSection.Switch1Hub.ActivateSwitch(currentSection.Switch1Port, (currentSection.LeftSection == nextSection));
 
 					// We can go - turn back to Green
@@ -345,7 +384,7 @@ namespace LegoTrainProject
 			// We update the visual
 			OnDataUpdated();
 
-			// Will we have to slow downn ahead of us?
+			// Will we have to slow down ahead of us?
 			if (nextSection.CountForwardSections() > 1 && nextNextSectionId != -1 && !nextSection.NeedsTwoSectionReleased)
 			{
 				if ((!nextSection.Switch1Hub.IsSwitchOnTheLeft(nextSection.Switch1Port) && (nextSection.LeftSection == sections[nextNextSectionId])) ||
@@ -370,13 +409,48 @@ namespace LegoTrainProject
 			}
 
 			// We can go - turn back to Green
+			//modified by Tom Cook to add Yellow or Green, in addition to Red
+			//if (dectector != null)
+			//dectector.SetLEDColor(Port.Colors.GREEN);
 			if (dectector != null)
-				dectector.SetLEDColor(Port.Colors.GREEN);
+			{
+				if (nextSection.CountForwardSections() > 1)
+				{
+					//dectector.SetLEDColor(Port.Colors.GREEN);
+				}
+				else
+				{
+					//dectector.SetLEDColor(Port.Colors.ORANGE);
+				}
+			}
+
+
 
 			// Resume train activity
 			if (IsRunning && nextSection.Action == Section.ActionOnRelease.Resume_Speed)
 			{
 				hub.SetMotorSpeed(hub.TrainMotorPort, (int)(resumingSpeed * hub.SpeedCoefficient));
+				
+				//added by Tom Cook for MU function
+				Port portRes = hub.GetPortFromPortId(hub.TrainMotorPort);
+				if (portRes.MUcolor > 0)
+				{
+					foreach (Hub hMU in project.RegisteredTrains)
+					{
+						foreach (Port pMU in hMU.RegistredPorts)
+						{
+							if (pMU.MUcolor == portRes.MUcolor)
+							{
+								hMU.SetMotorSpeed(pMU.Id, resumingSpeed);
+							}
+						}
+					}
+				}
+
+				//added by Tom Cook to show Green and Yellow (Orange) signals
+				if (dectector != null && resumingSpeed == nextSection.MaxSpeed) dectector.SetLEDColor(Port.Colors.GREEN);
+				if (dectector != null && resumingSpeed == hub.SpeedWhenAboutToStop) dectector.SetLEDColor(Port.Colors.ORANGE);
+
 				MainBoard.WriteLine($"{hub.Name} - Allowed to move to " + nextSection.Name, System.Drawing.Color.Green);
 			}
 			else if (IsRunning && nextSection.Action == Section.ActionOnRelease.Execute_Code)
@@ -446,7 +520,9 @@ namespace LegoTrainProject
 		internal bool IsTrainInNetwork(Hub train)
 		{
 			foreach (Section s in sections)
-				if (s.CurrentHub == train)
+				//modified by Tom Cook to ignore trains with no path selected
+				//if (s.CurrentHub == train)
+				if (s.CurrentHub == train || train.CurrentPath == null)
 					return true;
 
 			return false;
@@ -539,7 +615,9 @@ namespace LegoTrainProject
 						return;
 					}
 
-					await ReserveNextTrainSection(currentSection, currentTrain);
+					//modified by Tom Cook for MU function to add...
+					//await ReserveNextTrainSection(currentSection, currentTrain);
+					await ReserveNextTrainSection(currentSection, currentTrain, project);
 
 				};
 
@@ -552,8 +630,9 @@ namespace LegoTrainProject
 			else
 				MainBoard.WriteLine("Anti-Collision is active over " + sections.Count + " sections! ");
 		}
-
-		public async Task ReserveNextTrainSection(Section currentSection, Hub currentTrain)
+		//modified by Tom Cook for MU function to add...
+		//public async Task ReserveNextTrainSection(Section currentSection, Hub currentTrain)
+		public async Task ReserveNextTrainSection(Section currentSection, Hub currentTrain, TrainProject project)
 		{
 			// Get next section to go to
 			int nextSectionId = currentTrain.GetNextSectionIndex();
@@ -562,7 +641,9 @@ namespace LegoTrainProject
 			if (nextSectionId != -1 && nextSectionId < sections.Count && currentSection.IsConnectedForward(sections[nextSectionId]))
 			{
 				// Then await to be authorized!
-				await Reserve(sections[nextSectionId], currentSection, currentTrain);
+				//modified by Tom Cook for MU function to add...
+				//await Reserve(sections[nextSectionId], currentSection, currentTrain);
+				await Reserve(sections[nextSectionId], currentSection, currentTrain, project);
 			}
 			else
 			{
@@ -577,7 +658,17 @@ namespace LegoTrainProject
 					currentTrain.Stop();
 					MainBoard.WriteLine($"{currentSection.Name} has been stopped because Section " + nextSectionId + " is not a valid section forward. Check your path definition.");
 				}
+
+				//added by Tom Cook for MU function
+				Port portStop = currentTrain.GetPortFromPortId(currentTrain.TrainMotorPort);
+				if (portStop.MUcolor > 0)
+					foreach (Hub hMU in project.RegisteredTrains)
+						foreach (Port pMU in hMU.RegistredPorts)
+							if (pMU.MUcolor == portStop.MUcolor)
+								hMU.Stop(pMU.Id, false);
+
 			}
+
 		}
 
 		internal void ClearAllTrains()

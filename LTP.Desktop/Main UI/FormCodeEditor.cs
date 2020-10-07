@@ -212,5 +212,10 @@ namespace LegoTrainProject
 			else
 				CodeEvent.Name = textBoxName.Text;
 		}
-	}
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+			Close();
+        }
+    }
 }

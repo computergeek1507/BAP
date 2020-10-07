@@ -43,6 +43,9 @@ namespace LegoTrainProject
         public static List<ulong> registeredBluetoothDevices = new List<ulong>();
 		public static List<ulong> rejectedBluetoothDevices = new List<ulong>();
 		List<BluetoothLEAdvertisementReceivedEventArgs> devicesScanned = new List<BluetoothLEAdvertisementReceivedEventArgs>();
+		
+		//added by Tom Cook to track bluetooth devices by address so do not get duplicates in list
+		List<ulong> addressesScanned = new List<ulong>();
 
 		BluetoothLEAdvertisementWatcher BleWatcher = new BluetoothLEAdvertisementWatcher
 		{
@@ -56,10 +59,12 @@ namespace LegoTrainProject
         public static bool showColorDebug = false;
 		public ConnectionLimitationSettings connectionLimitationSettings;
 		public static bool showBLEDebug = false;
-		public string Version = "V1.5 - 08/21/19";
+		//modified by Tom Cook for version change
+		public string Version = "V1.6 - 09/30/20";
 		/// <summary>
 		/// Constructor
 		/// </summary>
+
 		public MainBoard()
         {
             try
@@ -89,7 +94,7 @@ namespace LegoTrainProject
                 MainBoard.WriteLine("FATAL ERROR:" + ex.Message, Color.Red);
                 MainBoard.WriteLine(ex.StackTrace, Color.Red);
             }
-        }
+		}
 
 		/// <summary>
 		/// Start a Bluetooth Scan
@@ -108,18 +113,25 @@ namespace LegoTrainProject
 				{
 					lock (registeredBluetoothDevices)
 					{
-						if (!registeredBluetoothDevices.Contains(btAdv.BluetoothAddress) && !devicesScanned.Contains(btAdv))
+						//modified by Tom Cook to track bluetooth devices by address (not just btAdv) to avoid duplicates in list
+						//if (!registeredBluetoothDevices.Contains(btAdv.BluetoothAddress) && !devicesScanned.Contains(btAdv))
+						if (!registeredBluetoothDevices.Contains(btAdv.BluetoothAddress) && !addressesScanned.Contains(btAdv.BluetoothAddress))
 						{
+							//added by Tom Cook  to track bluetooth devices by address (not just btAdv) to avoid duplicates in list
+							addressesScanned.Add(btAdv.BluetoothAddress);
+
 							devicesScanned.Add(btAdv);
 						}
 					}
 				};
 
                 MainBoard.WriteLine($"Scanning is active! following for the following devices:");
-				WriteLine(" - Powered Up Hubs & Remotes");
-				WriteLine(" - WeDo 2.0 & Boost Hubs");
-				WriteLine(" - SBrick & BuWizz Hubs");
-				WriteLine(" - EV3 Hubs (Connect from the Device menu)");
+				//modified by Tom Cook to format in a single row for brevity
+				//WriteLine(" - Powered Up Hubs & Remotes");
+				//WriteLine(" - WeDo 2.0 & Boost Hubs");
+				//WriteLine(" - SBrick & BuWizz Hubs");
+				//WriteLine(" - EV3 Hubs (Connect from the Device menu)");
+				WriteLine(" - Powered Up Hubs & Remotes   - WeDo 2.0 & Boost Hubs   - SBrick & BuWizz Hubs   - EV3 Hubs (Connect from the Device menu)");
 
 				BleWatcher.Start();
 				await TryToConnect();
@@ -146,12 +158,17 @@ namespace LegoTrainProject
 					{
 						currentDevice = devicesScanned[0];
 						devicesScanned.RemoveAt(0);
+
+						//added by Tom Cook  to track bluetooth devices by address (not just btAdv) to avoid duplicates in list
+						addressesScanned.RemoveAt(0);
 					}
 				}
 				else
 					await Task.Delay(1000);
 
-				if (currentDevice != null && !registeredBluetoothDevices.Contains(currentDevice.BluetoothAddress) && !rejectedBluetoothDevices.Contains(currentDevice.BluetoothAddress))
+				if (currentDevice != null && 
+					!registeredBluetoothDevices.Contains(currentDevice.BluetoothAddress) && 
+					!rejectedBluetoothDevices.Contains(currentDevice.BluetoothAddress))
 				{
 					try
 					{
@@ -270,27 +287,32 @@ namespace LegoTrainProject
                 if (t.DeviceId == device.DeviceId)
                 {
                     newTrain = t;
-                    newTrain.StartListening(device);
-                    return null;
+					newTrain.StartListening(device);
+					return null;
                 }
 
 			// Create a Hub of the right type
 			if (manufacturerID == Hub.HubManufacturerID.BOOST_MOVE_HUB)
-				newTrain = new Hub(device, Hub.Types.BOOST_MOVE_HUB);
+				newTrain = new Hub(device, Hub.Types.BOOST_MOVE_HUB, currentProject);
 			else if (manufacturerID == Hub.HubManufacturerID.SBRIK)
-				newTrain = new SbrickHub(device, Hub.Types.SBRICK);
+				newTrain = new SbrickHub(device, Hub.Types.SBRICK, currentProject);
 			else if (manufacturerID == Hub.HubManufacturerID.PFX)
-				newTrain = new PFxHub(device, Hub.Types.PFX);
+				newTrain = new PFxHub(device, Hub.Types.PFX, currentProject);
 			else if (manufacturerID == Hub.HubManufacturerID.BUWIZZ)
-				newTrain = new BuWizzHub(device, Hub.Types.BUWIZZ);
+				newTrain = new BuWizzHub(device, Hub.Types.BUWIZZ, currentProject);
 			else if (manufacturerID == Hub.HubManufacturerID.POWERED_UP_REMOTE)
-				newTrain = new RemoteHub(device, Hub.Types.POWERED_UP_REMOTE);
+				newTrain = new RemoteHub(device, Hub.Types.POWERED_UP_REMOTE, currentProject);
 			else if (manufacturerID == Hub.HubManufacturerID.WEDO)
-				newTrain = new WedoHub(device, Hub.Types.WEDO_2_SMART_HUB);
+				newTrain = new WedoHub(device, Hub.Types.WEDO_2_SMART_HUB, currentProject);
+			
+			//added by Tom Cook to add the Technic Hub to list of identified devices
+			else if (manufacturerID == Hub.HubManufacturerID.TECHNIC_HUB)
+				newTrain = new Hub(device, Hub.Types.TECHNIC_HUB, currentProject);
+			
 			else
-				newTrain = new Hub(device, Hub.Types.POWERED_UP_HUB);
+				newTrain = new Hub(device, Hub.Types.POWERED_UP_HUB, currentProject);
 
-			// Add it to the list of hub of the project
+			// Add it to the list of hubs of the project
 			if (newTrain.Device != null)
 				currentProject.RegisteredTrains.Add(newTrain);
 
@@ -299,8 +321,12 @@ namespace LegoTrainProject
 
         private void AddTrainToFlowLayout(Hub newHub)
         {
+
 			// Create the control
-			HubControl hubControl = new HubControl(newHub);
+
+			//modified by Tom Cook to add currentProject of connected hubs to reference for MU function
+			//HubControl hubControl = new HubControl(newHub);
+			HubControl hubControl = new HubControl(newHub, currentProject);
 
 			// Make sure to be aware of any data changes on the hub
 			hubControl.PortTypeRefreshed += RefreshAllTrainEventCombox;
@@ -310,6 +336,7 @@ namespace LegoTrainProject
 
 			// Update the Label
 			hubControl.UpdateLabels();
+
 		}
 
 
@@ -374,14 +401,18 @@ namespace LegoTrainProject
 			tabProgramsControl.TabPages.Add(page);
 
 			page.Tag = new List<ComboBox>();
+
 			page.Resize += Page_Resize;
 
 			// Create a Panel for that Train
 			FlowLayoutPanel panel = new FlowLayoutPanel();
             panel.Tag = newProgram;
-            panel.Width = (page.Width > 1250) ? page.Width : 1250;
-            panel.Height = page.Height;
-            panel.AutoScroll = true;
+
+			panel.Width = (page.Width > 1250) ? page.Width : 1250;
+			
+			panel.Height = page.Height;
+            
+			panel.AutoScroll = true;
             page.Controls.Add(panel);
 
 			ToolStripProgram tsp = new ToolStripProgram();
@@ -395,9 +426,11 @@ namespace LegoTrainProject
 			tsp.toolStripButtonAddSequence.Tag = new object[] { page, panel, EventType.User_Triggerd };
 
 			tsp.toolStripButtonDelete.Click += DeleteProgramButton_Click;
-			tsp.toolStripButtonDelete.Tag = new object[] { page, newProgram }; 
+			tsp.toolStripButtonDelete.Tag = new object[] { page, newProgram };
 
-			tsp.Width = panel.Width;
+			//modified by Tom Cook to shorten the toolstrip in programs
+			//tsp.Width = panel.Width;
+			tsp.Width = panel.Width - 100;
 			tsp.Height = 40;
 
 			panel.Controls.Add(tsp);
@@ -413,6 +446,7 @@ namespace LegoTrainProject
 				if (p.Controls[0].GetType() == typeof(FlowLayoutPanel))
 				{
 					FlowLayoutPanel f = (FlowLayoutPanel)p.Controls[0];
+					
 					f.Width = p.Width;
 					f.Height = p.Height;
 				}
@@ -1028,6 +1062,9 @@ namespace LegoTrainProject
 								paramTextboxes[i].Text = "1";
 							if (paramTypes[i + currentParam] == TrainParamType.Lights)
 								paramTextboxes[i].Text = "1,2,3,4,5,6,7,8";
+							//added by Tom Cook to add the 'change' speed function to program options
+							if (paramTypes[i + currentParam] == TrainParamType.Change)
+								paramTextboxes[i].Text = "10";
 						}
 						else
 							paramTextboxes[i].Text = "Not Used";
@@ -1232,7 +1269,8 @@ namespace LegoTrainProject
 				// Then go on each program and update the names of each combos
 				foreach (TabPage page in tabProgramsControl.TabPages)
                 {
-                    List<ComboBox> targetComboBoxControls = (List<ComboBox>)page.Tag;
+
+					List<ComboBox> targetComboBoxControls = (List<ComboBox>)page.Tag;
 
 					if (targetComboBoxControls != null)
 					{
@@ -1342,7 +1380,9 @@ namespace LegoTrainProject
 		{
 			// First we clean up all event hook up
 			foreach (HubControl hc in flowLayoutTrainsPanel.Controls)
+			{
 				hc.ClearAllEvents();
+			}
 
 			// then we clear all hubs
 			AddControlToFlowPanel(flowLayoutTrainsPanel, null, false);
@@ -1376,6 +1416,7 @@ namespace LegoTrainProject
 					GenerateEventUI(page, panel, program, trainEvent);
 				}
 			}
+			
 		}
 
 		private void AddSelfDrivingTab()
@@ -1386,23 +1427,44 @@ namespace LegoTrainProject
 			{
 				TabPage page = new TabPage("Self Driving Module");
 				sectionEditor = new SectionsEditor(currentProject);
+				
 				sectionEditor.Size = page.Size;
 				page.Resize += (s, e) =>
 				{
 					sectionEditor.Size = page.Size;
 				};
 
+				//added by Tom Cook if you want to limit the height of the box where sections are inserted
+				//sectionEditor.Height += 200;
+
 				page.Controls.Add(sectionEditor);
 				tabProgramsControl.TabPages.Add(page);
+
+				//added by Tom Cook (or maybe re-added) to refresh sections so are the same size regardless of how added
+				sectionEditor.RecreateSectionsUI();
+				sectionEditor.RefreshTrainProperties();
+
+				//added by Tom Cook to assign ... for MU function
+				foreach (Hub CurrentHub in currentProject.RegisteredTrains)
+				{
+					CurrentHub.TrainMotorPort = null;
+					foreach (Port port in CurrentHub.RegistredPorts)
+						if (port.Function == Port.Functions.TRAIN_MOTOR)
+							CurrentHub.TrainMotorPort = port.Id;
+				}
+				//InitPortComponents();
+
 			}
 		}
 
 		private static OpenFileDialog GetOpenFileDialog()
         {
-            return new OpenFileDialog
-            {
-                InitialDirectory = AppDomain.CurrentDomain.BaseDirectory,
-                Title = "Select A Project",
+			return new OpenFileDialog
+			{
+				//v1.6.1 modified by Tom Cook to set to 'documents' folder
+				//InitialDirectory = AppDomain.CurrentDomain.BaseDirectory,
+				InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+				Title = "Select A Project",
 
                 CheckFileExists = true,
                 CheckPathExists = true,
@@ -1421,8 +1483,10 @@ namespace LegoTrainProject
         {
             return new SaveFileDialog
             {
-                InitialDirectory = AppDomain.CurrentDomain.BaseDirectory,
-                Title = "Save A Project",
+				//v1.6.1 modified by Tom Cook to set to 'documents' folder
+				//InitialDirectory = AppDomain.CurrentDomain.BaseDirectory,
+				InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+				Title = "Save A Project",
 
                 CheckPathExists = true,
 
@@ -1477,14 +1541,19 @@ namespace LegoTrainProject
         private void createdByVincentVergonjeanneToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var mailMessage = new MailMessage();
-            mailMessage.From = new MailAddress("vincent@vergonjeanne.fr");
-            mailMessage.Subject = "About The Lego Train Project";
-            var filename = System.IO.Path.GetTempPath() + "tempmessage.eml";
+			//modified by Tom Cook to email me
+            //mailMessage.From = new MailAddress("vincent@vergonjeanne.fr");
+			mailMessage.From = new MailAddress("tom@lgauge.com");
+			mailMessage.Subject = "About The Lego Train Project";
 
-            //save the MailMessage to the filesystem
-            SaveEmail(mailMessage, filename);
-            Process.Start(filename);
-        }
+			//modified by Tom Cook to use simple email
+			//var filename = System.IO.Path.GetTempPath() + "tempmessage.eml";
+
+			//save the MailMessage to the filesystem
+			//SaveEmail(mailMessage, filename);
+			//Process.Start(filename);
+			Process.Start("mailto:tom@lgauge.com");
+		}
 
         //Extension method for MailMessage to save to a file on disk
         public void SaveEmail(MailMessage message, string filename)
@@ -1515,10 +1584,12 @@ namespace LegoTrainProject
 
         private void makeADonationToHelpSupportThisDevelopmentToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start("https://www.paypal.me/vincentvergonjeanne");
-        }
+			//modified by Tom Cook
+            //System.Diagnostics.Process.Start("https://www.paypal.me/vincentvergonjeanne");
+			System.Diagnostics.Process.Start("https://lgauge.com/article.php?article=trains/gallery/articles/bap");
+		}
 
-        private void inspiredByTheGreatWorkOfToolStripMenuItem_Click(object sender, EventArgs e)
+		private void inspiredByTheGreatWorkOfToolStripMenuItem_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start("https://github.com/nathankellenicki/node-poweredup");
         }
@@ -1603,7 +1674,7 @@ namespace LegoTrainProject
 					}
 				}
 
-				EV3Hub h = new EV3Hub(null, Hub.Types.EV3, result);
+				EV3Hub h = new EV3Hub(null, Hub.Types.EV3, currentProject, result);
 				h.TryToConnect();
 
 				int count = 0;
@@ -1660,5 +1731,20 @@ namespace LegoTrainProject
 				sectionEditor.RefreshTrainProperties();
 			}
 		}
-	}
+
+        private void flowLayoutTrainsPanel_Scroll(object sender, ScrollEventArgs e)
+        {
+			ConsoleBox.Focus();
+        }
+
+        private void MainBoard_KeyDown(object sender, KeyEventArgs e)
+        {
+			if (e.KeyCode == Keys.Space)
+			{
+				toolStripButtonAllTrains_Click(null, null);
+				System.Media.SoundPlayer simpleSound = new System.Media.SoundPlayer(@"c:\Windows\Media\notify.wav");
+				simpleSound.Play();
+			}
+        }
+    }
 }

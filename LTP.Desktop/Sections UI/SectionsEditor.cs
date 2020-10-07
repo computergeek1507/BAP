@@ -53,7 +53,11 @@ namespace LegoTrainProject
 				Section s = Project.Sections[i];
 				SectionControl sc = new SectionControl(Project, s, this, (i == totalSections - 1));
 				sc.Width = 147;
-				sc.Height = flowLayoutPanelSections.Height;
+
+				//modified by Tom Cook
+				//sc.Height = flowLayoutPanelSections.Height;
+				//sc.Height = flowLayoutPanelSections.Height - 21;
+				sc.Height = 239;  //Train Driving Module to shrinks the Section control
 				flowLayoutPanelSections.Controls.Add(sc);
 				flowLayoutPanelSections.SetFlowBreak(sc, true);
 			}
@@ -170,8 +174,12 @@ namespace LegoTrainProject
 				foreach (Hub h in Project.RegisteredTrains)
 				{
 					h.IsPathProgramRunning = false;
-					if (h.IsTrain())
-						await h.ClearAutomatedPathAndStop(false);
+
+						//modified by Tom Cook to ignore trains with no path selected
+						if (h.IsTrain() && h.CurrentPath != null)
+
+							//if (h.IsTrain())
+							await h.ClearAutomatedPathAndStop(false);
 					h.RestoreLEDColor();
 				}
 			}
@@ -182,12 +190,13 @@ namespace LegoTrainProject
 					h.IsWaitingSection = false;
 					h.AbortReserve = false;
 					h.IsPathProgramRunning = false;
-
+					
 					if (h.IsConnected && h.IsTrain() && !Project.Sections.IsTrainInNetwork(h))
 					{
 						MessageBox.Show($"{h.Name} does not have a Section assigned.", "Start Is Aborted");
 						return;
 					}
+					
 				}
 
 				foreach (Section s in Project.Sections)

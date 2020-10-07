@@ -100,6 +100,9 @@ namespace LegoTrainProject
 		[NonSerialized]
 		public int LatestDistance = 0;
 
+		//added by Tom Cook to display actually cm
+		public double distance = 0;
+
 		[NonSerialized]
 		public long LastDistanceTick = 0;
 
@@ -123,6 +126,23 @@ namespace LegoTrainProject
 			RED = 9,
 			WHITE = 10,
 			NONE = 255
+		}
+
+		//added by Tom Cook for MUcolor codes
+		public enum MUColors
+		{
+			BLANK = 0,
+			BLACK = 1,
+			PINK = 2,
+			PURPLE = 3,
+			BLUE = 4,
+			LBLUE = 5,
+			CYAN = 6,
+			GREEN = 7,
+			YELLOW = 8,
+			ORANGE = 9,
+			RED = 10,
+			WHITE = 11
 		}
 
 		public static Bitmap[] colorBitmaps = new Bitmap[]
@@ -151,6 +171,14 @@ namespace LegoTrainProject
 		/// </summary>
 		private int distanceColorCooldownMs = 2000;
 		public int DistanceColorCooldownMs { get => (distanceColorCooldownMs == 0) ? 2000 : distanceColorCooldownMs; set => distanceColorCooldownMs = value; }
+
+		//added by Tom Cook to add inverted function and MU function
+		public bool Inverted = false;
+		public int 
+			hub = -1;
+		public int MUport = -1;
+		public int MUcolor = 0;
+		public Color MUbackcolor = Color.Empty;
 
 		public Port(string id, int value)
         {

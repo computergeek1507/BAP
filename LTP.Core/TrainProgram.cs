@@ -70,7 +70,10 @@ namespace LegoTrainProject
             Execute_Code = 10,
 			PFx_Play_Sound_With_File_Id = 11,
 			PFx_Light_Fx = 12,
-			Play_Sound = 13
+            //modified by Tom Cook to add change speed function
+			//Play_Sound = 13
+            Play_Sound = 13,
+            Change_Speed = 14
 		}
 
 		public enum TrainParamType
@@ -83,11 +86,16 @@ namespace LegoTrainProject
 			PfxFile = 5,
 			PfxLight = 6,
 			Lights = 7,
-			Path = 8
+            //modified by Tom Cook to add change speed function parameter 'Change'
+			//Path = 8
+            Path = 8,
+            Change = 9
 		}
 
         [NonSerialized]
-        public static TrainParamType[][] ParamTypes = new TrainParamType[14][]
+        //modified by Tom Cook to add 1 to array for change speed function
+        //public static TrainParamType[][] ParamTypes = new TrainParamType[14][]
+        public static TrainParamType[][] ParamTypes = new TrainParamType[15][]
         {
             new TrainParamType[] { },
             new TrainParamType[] { TrainParamType.Port },
@@ -102,8 +110,11 @@ namespace LegoTrainProject
             new TrainParamType[] { TrainParamType.Code },
 			new TrainParamType[] { TrainParamType.PfxFile },
 			new TrainParamType[] { TrainParamType.PfxLight, TrainParamType.Lights },
-			new TrainParamType[] { TrainParamType.Path }
-		};
+            //modified by Tom Cook to add change speed function
+			//new TrainParamType[] { TrainParamType.Path }
+            new TrainParamType[] { TrainParamType.Path },
+            new TrainParamType[] { TrainParamType.Port, TrainParamType.Change }
+        };
 		
 		[NonSerialized]
         public const string Code = @" 
@@ -183,7 +194,7 @@ Hub[0].SetMotorSpeed(""A"", 75);
 // Wait 1000ms (1 second)
 Wait(1000); 
 
-// Stop the motor attached to port B
+// Stop the motor attached to port A
 Hub[0].Stop(""A""); 
 
             " :
@@ -522,7 +533,6 @@ public const int YELLOW_TRAIN = 2;
                         t.Start();
                         break;
                     }
-
                 case TrainProgramEvent.ActionType.Set_Speed_For_X_Ms_And_Stop:
                     {
                         MainBoard.WriteLine($"{target.Name} Action Tiggered => Set Speed on Port {e.TargetPort} to {e.Param[0]} And Stop after {e.Param[1]}ms");
@@ -639,6 +649,19 @@ public const int YELLOW_TRAIN = 2;
                             
                         }
 
+                        break;
+                    }
+                //added by Tom Cook to add change speed function
+                case TrainProgramEvent.ActionType.Change_Speed:
+                    {
+                        MainBoard.WriteLine($"{target.Name} Action Tiggered =>Change Motor Speed of Port {e.TargetPort} by {e.Param[0]}  for {target.Name}");
+                        //tb.Value = (p.Speed == 127) ? -1 : (p.Speed < -100) ? -100 : (p.Speed > 100) ? 100 : p.Speed;
+
+                        int newspeed = (target.GetMotorSpeed(e.TargetPort) + e.Param[0] < -100) ? -100 :
+                            (target.GetMotorSpeed(e.TargetPort) + e.Param[0] > 100) ? 100 :
+                                target.GetMotorSpeed(e.TargetPort) + e.Param[0];
+
+                        target.SetMotorSpeed(e.TargetPort, newspeed);
                         break;
                     }
 

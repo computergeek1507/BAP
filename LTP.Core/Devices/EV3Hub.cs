@@ -31,7 +31,9 @@ namespace LegoTrainProject
 		[NonSerialized]
 		Brick brick;
 
-		public EV3Hub(BluetoothLEDevice device, Types type, string comAddress) : base(device, type)
+		//modified by Tom Cook for MU function to add TrainProject project to class where need to loop thru all hubs and ports
+		//public EV3Hub(BluetoothLEDevice device, Types type, string comAddress) : base(device, type)
+		public EV3Hub(BluetoothLEDevice device, Types type, TrainProject project, string comAddress) : base(device, type, project)
 		{
 			Name = "EV3";
 			DeviceId = comAddress;

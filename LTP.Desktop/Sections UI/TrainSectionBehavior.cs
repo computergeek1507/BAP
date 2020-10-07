@@ -38,8 +38,11 @@ namespace LegoTrainProject.Sections_UI
 
 		private void textBoxMaxSpeed_TextChanged(object sender, EventArgs e)
 		{
+			//modified by Tom Cook to change default max speed to 50
+			//if (!Int32.TryParse(textBoxMaxSpeed.Text, out Section.MaxSpeed))
+			//  textBoxMaxSpeed.Text = "100";
 			if (!Int32.TryParse(textBoxMaxSpeed.Text, out Section.MaxSpeed))
-				textBoxMaxSpeed.Text = "100";
+				textBoxMaxSpeed.Text = "50";
 		}
 
 		private void radioButtonResume_CheckedChanged(object sender, EventArgs e)
@@ -73,5 +76,10 @@ trainInSection.SetMotorSpeed(trainInSection.TrainMotorPort, 70);
 		{
 
 		}
-	}
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+		
+        }
+    }
 }
