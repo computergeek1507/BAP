@@ -182,6 +182,8 @@ namespace LegoTrainProject
 								type = Hub.HubManufacturerID.SBRIK;
 							else if (device.Name.Contains("PFx"))
 								type = Hub.HubManufacturerID.PFX;
+							else if (device.Name.Contains("Wizz3"))
+								type = Hub.HubManufacturerID.BUWIZZ3;
 							else if (device.Name.Contains("Wizz"))
 								type = Hub.HubManufacturerID.BUWIZZ;
 							else
@@ -308,7 +310,9 @@ namespace LegoTrainProject
 			//added by Tom Cook to add the Technic Hub to list of identified devices
 			else if (manufacturerID == Hub.HubManufacturerID.TECHNIC_HUB)
 				newTrain = new Hub(device, Hub.Types.TECHNIC_HUB, currentProject);
-			
+			else if (manufacturerID == Hub.HubManufacturerID.BUWIZZ3)
+				newTrain = new BuWizz3Hub(device, Hub.Types.BUWIZZ3, currentProject);
+
 			else
 				newTrain = new Hub(device, Hub.Types.POWERED_UP_HUB, currentProject);
 

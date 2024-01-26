@@ -129,7 +129,8 @@ namespace LegoTrainProject
 			SBRIK = 1000,
 			WEDO = 1001,
 			PFX = 1002,
-			BUWIZZ = 1003
+			BUWIZZ = 1003,
+			BUWIZZ3 = 1004
 		}
 
 		public enum Types
@@ -144,7 +145,9 @@ namespace LegoTrainProject
 			BUWIZZ = 7,
 
 			//added by Tom Cook to add Technic Hub to list of types
-			TECHNIC_HUB = 8
+			TECHNIC_HUB = 8,
+
+			BUWIZZ3 = 9
 		}
 
 		/// <summary>
