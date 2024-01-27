@@ -36,6 +36,9 @@ namespace LegoTrainProject
 
 			if (hub.Type == Hub.Types.SBRICK)
 				comboBoxType.Enabled = false;
+
+			btnRename.Enabled = CurrentHub.Type != Hub.Types.WEDO_2_SMART_HUB;
+
 		}
 
 		public void InitPortComponents()
@@ -123,7 +126,7 @@ namespace LegoTrainProject
 
 				//added by Tom Cook	see above
 				else
-				
+
 				if (p.Function == Port.Functions.SENSOR)
 				{
 					Label labelHeader = new Label();
@@ -274,7 +277,7 @@ namespace LegoTrainProject
 				CurrentHub.RestoreLEDColor();
 			}
 		}
-		
+
         //added by Tom Cook to rename hub and send via bluetooth
 		private void btnRename_Click(object sender, EventArgs e)
         {

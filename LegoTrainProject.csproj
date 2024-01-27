@@ -84,6 +84,12 @@
       <HintPath>packages\FCTB.2.16.24\lib\FastColoredTextBox.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="MQTTnet, Version=4.3.3.952, Culture=neutral, PublicKeyToken=fdb7629f2e364a63, processorArchitecture=MSIL">
+      <HintPath>packages\MQTTnet.4.3.3.952\lib\net48\MQTTnet.dll</HintPath>
+    </Reference>
+    <Reference Include="MQTTnet.Extensions.ManagedClient, Version=4.3.3.952, Culture=neutral, PublicKeyToken=fdb7629f2e364a63, processorArchitecture=MSIL">
+      <HintPath>packages\MQTTnet.Extensions.ManagedClient.4.3.3.952\lib\net48\MQTTnet.Extensions.ManagedClient.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -122,8 +128,10 @@
     <Compile Include="EV3.Core\SystemCommand.cs" />
     <Compile Include="LTP.Core\Devices\BuWizz3Hub.cs" />
     <Compile Include="LTP.Core\Devices\ConnectionLimitationSettings.cs" />
+    <Compile Include="LTP.Core\Devices\MTC4PUHub.cs" />
     <Compile Include="LTP.Core\Devices\PFxHub.cs" />
     <Compile Include="LTP.Core\Devices\BuWizzHub.cs" />
+    <Compile Include="LTP.Core\mqtt\MQTTClient.cs" />
     <Compile Include="LTP.Desktop\Main UI\ConnectionLimit.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -458,6 +466,7 @@
   <ItemGroup>
     <Content Include="BAP.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

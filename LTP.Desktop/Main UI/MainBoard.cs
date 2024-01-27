@@ -23,12 +23,12 @@ namespace LegoTrainProject
 	{
 		/// <summary>
 		/// TODO
-		/// 
+		///
 		/// Add donors
 		/// - Add color trigger paramters
 		/// - Interative Map
 		/// - Tilt Support
-		/// 
+		///
 		/// </summary>
 
 		private delegate void SetControlPropertyThreadSafeDelegate(Control control, string propertyName, object propertyValue);
@@ -43,7 +43,7 @@ namespace LegoTrainProject
         public static List<ulong> registeredBluetoothDevices = new List<ulong>();
 		public static List<ulong> rejectedBluetoothDevices = new List<ulong>();
 		List<BluetoothLEAdvertisementReceivedEventArgs> devicesScanned = new List<BluetoothLEAdvertisementReceivedEventArgs>();
-		
+
 		//added by Tom Cook to track bluetooth devices by address so do not get duplicates in list
 		List<ulong> addressesScanned = new List<ulong>();
 
@@ -59,8 +59,9 @@ namespace LegoTrainProject
         public static bool showColorDebug = false;
 		public ConnectionLimitationSettings connectionLimitationSettings;
 		public static bool showBLEDebug = false;
-		//modified by Tom Cook for version change
-		public string Version = "V1.6 - 09/30/20";
+		//modified by Tom Cook for version change v1.6
+		//modified by Scott Hanson
+		public string Version = "V1.7 - 01/27/24";
 		/// <summary>
 		/// Constructor
 		/// </summary>
@@ -166,8 +167,8 @@ namespace LegoTrainProject
 				else
 					await Task.Delay(1000);
 
-				if (currentDevice != null && 
-					!registeredBluetoothDevices.Contains(currentDevice.BluetoothAddress) && 
+				if (currentDevice != null &&
+					!registeredBluetoothDevices.Contains(currentDevice.BluetoothAddress) &&
 					!rejectedBluetoothDevices.Contains(currentDevice.BluetoothAddress))
 				{
 					try
@@ -274,7 +275,7 @@ namespace LegoTrainProject
 				}
 				else if (uid == Guid.Parse("00001523-1212-efde-1523-785feabcd123"))
 				{
-					return Hub.HubManufacturerID.WEDO; 
+					return Hub.HubManufacturerID.WEDO;
 				}
 			}
 
@@ -306,7 +307,7 @@ namespace LegoTrainProject
 				newTrain = new RemoteHub(device, Hub.Types.POWERED_UP_REMOTE, currentProject);
 			else if (manufacturerID == Hub.HubManufacturerID.WEDO)
 				newTrain = new WedoHub(device, Hub.Types.WEDO_2_SMART_HUB, currentProject);
-			
+
 			//added by Tom Cook to add the Technic Hub to list of identified devices
 			else if (manufacturerID == Hub.HubManufacturerID.TECHNIC_HUB)
 				newTrain = new Hub(device, Hub.Types.TECHNIC_HUB, currentProject);
@@ -350,11 +351,11 @@ namespace LegoTrainProject
 
 
 		/////////////////////////
-		/// 
-		/// 
-		/// UI Events for Hubs 
-		/// 
-		/// 
+		///
+		///
+		/// UI Events for Hubs
+		///
+		///
 		/////////////////////////
 
 
@@ -374,11 +375,11 @@ namespace LegoTrainProject
 
 
         /////////////////////////
-        /// 
-        /// 
-        /// Programs 
-        /// 
-        /// 
+        ///
+        ///
+        /// Programs
+        ///
+        ///
         /////////////////////////
 
 
@@ -386,8 +387,8 @@ namespace LegoTrainProject
 
 
 
-                    
-            
+
+
 
 
 
@@ -413,9 +414,9 @@ namespace LegoTrainProject
             panel.Tag = newProgram;
 
 			panel.Width = (page.Width > 1250) ? page.Width : 1250;
-			
+
 			panel.Height = page.Height;
-            
+
 			panel.AutoScroll = true;
             page.Controls.Add(panel);
 
@@ -450,7 +451,7 @@ namespace LegoTrainProject
 				if (p.Controls[0].GetType() == typeof(FlowLayoutPanel))
 				{
 					FlowLayoutPanel f = (FlowLayoutPanel)p.Controls[0];
-					
+
 					f.Width = p.Width;
 					f.Height = p.Height;
 				}
@@ -526,7 +527,7 @@ namespace LegoTrainProject
             TabPage tab = (TabPage)((object[])((ToolStripButton)sender).Tag)[0];
             TrainProgram program = (TrainProgram)((object[])((ToolStripButton)sender).Tag)[1];
 
-            program.Name = tab.Text = ((TextBox)sender).Text;     
+            program.Name = tab.Text = ((TextBox)sender).Text;
         }
 
         /// <summary>
@@ -559,11 +560,11 @@ namespace LegoTrainProject
 
 
         /////////////////////////
-        /// 
-        /// 
-        /// Events 
-        /// 
-        /// 
+        ///
+        ///
+        /// Events
+        ///
+        ///
         /////////////////////////
 
 
@@ -597,7 +598,7 @@ namespace LegoTrainProject
 
             if (newEvent.Type == EventType.User_Triggerd)
             {
-                label.Text = (newEvent.Name == null) ? "Sequence #" + (program.Events.IndexOf(newEvent) + 1) : newEvent.Name; 
+                label.Text = (newEvent.Name == null) ? "Sequence #" + (program.Events.IndexOf(newEvent) + 1) : newEvent.Name;
 
                 Button startCodeButton = new Button();
                 startCodeButton.Width = 38;
@@ -1134,11 +1135,11 @@ namespace LegoTrainProject
 
 
         /////////////////////////
-        /// 
-        /// 
-        /// Helpers 
-        /// 
-        /// 
+        ///
+        ///
+        /// Helpers
+        ///
+        ///
         /////////////////////////
 
 
@@ -1262,8 +1263,8 @@ namespace LegoTrainProject
         {
             if (tabProgramsControl.InvokeRequired)
             {
-                tabProgramsControl.Invoke(new RefreshTrainEventComboBoxThreadSafeDelegate(RefreshAllTrainEventCombox), 
-                    new object[] { });   
+                tabProgramsControl.Invoke(new RefreshTrainEventComboBoxThreadSafeDelegate(RefreshAllTrainEventCombox),
+                    new object[] { });
             }
             else
             {
@@ -1420,7 +1421,7 @@ namespace LegoTrainProject
 					GenerateEventUI(page, panel, program, trainEvent);
 				}
 			}
-			
+
 		}
 
 		private void AddSelfDrivingTab()
@@ -1431,7 +1432,7 @@ namespace LegoTrainProject
 			{
 				TabPage page = new TabPage("Self Driving Module");
 				sectionEditor = new SectionsEditor(currentProject);
-				
+
 				sectionEditor.Size = page.Size;
 				page.Resize += (s, e) =>
 				{
@@ -1544,11 +1545,11 @@ namespace LegoTrainProject
 
         private void createdByVincentVergonjeanneToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var mailMessage = new MailMessage();
+            //var mailMessage = new MailMessage();
 			//modified by Tom Cook to email me
             //mailMessage.From = new MailAddress("vincent@vergonjeanne.fr");
-			mailMessage.From = new MailAddress("tom@lgauge.com");
-			mailMessage.Subject = "About The Lego Train Project";
+			//mailMessage.From = new MailAddress("tom@lgauge.com");
+			//mailMessage.Subject = "About The Lego Train Project";
 
 			//modified by Tom Cook to use simple email
 			//var filename = System.IO.Path.GetTempPath() + "tempmessage.eml";
@@ -1560,31 +1561,31 @@ namespace LegoTrainProject
 		}
 
         //Extension method for MailMessage to save to a file on disk
-        public void SaveEmail(MailMessage message, string filename)
-        {
-            using (var filestream = File.Open(filename, FileMode.Create))
-            {
-                var assembly = typeof(SmtpClient).Assembly;
-                var mailWriterType = assembly.GetType("System.Net.Mail.MailWriter");
-
-                // Get reflection info for MailWriter contructor
-                var mailWriterContructor = mailWriterType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(Stream) }, null);
-
-                // Construct MailWriter object with our FileStream
-                var mailWriter = mailWriterContructor.Invoke(new object[] { filestream });
-
-                // Get reflection info for Send() method on MailMessage
-                var sendMethod = typeof(MailMessage).GetMethod("Send", BindingFlags.Instance | BindingFlags.NonPublic);
-
-                sendMethod.Invoke(message, BindingFlags.Instance | BindingFlags.NonPublic, null, new object[] { mailWriter, true, true }, null);
-
-                // Finally get reflection info for Close() method on our MailWriter
-                var closeMethod = mailWriter.GetType().GetMethod("Close", BindingFlags.Instance | BindingFlags.NonPublic);
-
-                // Call close method
-                closeMethod.Invoke(mailWriter, BindingFlags.Instance | BindingFlags.NonPublic, null, new object[] { }, null);
-            }
-        }
+        //public void SaveEmail(MailMessage message, string filename)
+        //{
+        //    using (var filestream = File.Open(filename, FileMode.Create))
+        //    {
+        //        var assembly = typeof(SmtpClient).Assembly;
+        //        var mailWriterType = assembly.GetType("System.Net.Mail.MailWriter");
+		//
+        //        // Get reflection info for MailWriter contructor
+        //        var mailWriterContructor = mailWriterType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(Stream) }, null);
+		//
+        //        // Construct MailWriter object with our FileStream
+        //        var mailWriter = mailWriterContructor.Invoke(new object[] { filestream });
+		//
+        //        // Get reflection info for Send() method on MailMessage
+        //        var sendMethod = typeof(MailMessage).GetMethod("Send", BindingFlags.Instance | BindingFlags.NonPublic);
+		//
+        //        sendMethod.Invoke(message, BindingFlags.Instance | BindingFlags.NonPublic, null, new object[] { mailWriter, true, true }, null);
+		//
+        //        // Finally get reflection info for Close() method on our MailWriter
+        //        var closeMethod = mailWriter.GetType().GetMethod("Close", BindingFlags.Instance | BindingFlags.NonPublic);
+		//
+        //        // Call close method
+        //        closeMethod.Invoke(mailWriter, BindingFlags.Instance | BindingFlags.NonPublic, null, new object[] { }, null);
+        //    }
+        //}
 
         private void makeADonationToHelpSupportThisDevelopmentToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1597,7 +1598,7 @@ namespace LegoTrainProject
         {
             System.Diagnostics.Process.Start("https://github.com/nathankellenicki/node-poweredup");
         }
-    
+
         private void showColorDebugToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MainBoard.showColorDebug = showColorDebugToolStripMenuItem.Checked;
@@ -1665,7 +1666,7 @@ namespace LegoTrainProject
 		{
 			string result = Microsoft.VisualBasic.Interaction.InputBox("Enter the COM number of your EV3" + Environment.NewLine + "To discover your COM number check out the tutorial in the Help section.", "EV3 Bluetooth COM Number", "COM5");
 
-			if (result != String.Empty)
+			if (result != string.Empty)
 			{
 				// Do we already know this train?
 				foreach (Hub t in currentProject.RegisteredTrains)
@@ -1688,7 +1689,7 @@ namespace LegoTrainProject
 				}
 
 				if (h.IsConnected)
-				{ 
+				{
 					currentProject.RegisteredTrains.Add(h);
 					AddTrainToFlowLayout(h);
 				}
