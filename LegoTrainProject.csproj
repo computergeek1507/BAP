@@ -80,6 +80,12 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DXNET, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\DXNET.5.0.0\lib\net48\DXNET.dll</HintPath>
+    </Reference>
+    <Reference Include="DXNET.XInput, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\DXNET.XInput.5.0.0\lib\net48\DXNET.XInput.dll</HintPath>
+    </Reference>
     <Reference Include="FastColoredTextBox, Version=2.16.24.0, Culture=neutral, PublicKeyToken=fb8aa12b994ef61b, processorArchitecture=MSIL">
       <HintPath>packages\FCTB.2.16.24\lib\FastColoredTextBox.dll</HintPath>
     </Reference>
@@ -98,6 +104,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETCore\v4.5\System.Runtime.WindowsRuntime.dll</HintPath>
     </Reference>
+    <Reference Include="System.Security" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -128,10 +135,18 @@
     <Compile Include="EV3.Core\SystemCommand.cs" />
     <Compile Include="LTP.Core\Devices\BuWizz3Hub.cs" />
     <Compile Include="LTP.Core\Devices\ConnectionLimitationSettings.cs" />
+    <Compile Include="LTP.Core\Devices\DACTAHub.cs" />
     <Compile Include="LTP.Core\Devices\MTC4PUHub.cs" />
     <Compile Include="LTP.Core\Devices\PFxHub.cs" />
     <Compile Include="LTP.Core\Devices\BuWizzHub.cs" />
     <Compile Include="LTP.Core\mqtt\MQTTClient.cs" />
+    <Compile Include="LTP.Core\SecureIt.cs" />
+    <Compile Include="LTP.Desktop\Hubs UI\NetworkEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LTP.Desktop\Hubs UI\NetworkEditor.Designer.cs">
+      <DependentUpon>NetworkEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="LTP.Desktop\Main UI\ConnectionLimit.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -145,6 +160,12 @@
       <DependentUpon>FormWelcome.cs</DependentUpon>
     </Compile>
     <Compile Include="LTP.Core\Path.cs" />
+    <Compile Include="LTP.Desktop\Hubs UI\SerialEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LTP.Desktop\Hubs UI\SerialEditor.Designer.cs">
+      <DependentUpon>SerialEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="LTP.Desktop\Program\ToolStripProgram.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -249,6 +270,12 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="LTP.Desktop\Hubs UI\NetworkEditor.resx">
+      <DependentUpon>NetworkEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LTP.Desktop\Hubs UI\SerialEditor.resx">
+      <DependentUpon>SerialEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LTP.Desktop\Main UI\ConnectionLimit.resx">
       <DependentUpon>ConnectionLimit.cs</DependentUpon>
     </EmbeddedResource>

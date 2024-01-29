@@ -26,7 +26,7 @@ namespace LegoTrainProject
 			{
 				t.Stop();
 				this.Hide();
-				FormWelcome fw = new FormWelcome();
+				//FormWelcome fw = new FormWelcome();
 				//modifed by Tom Cook
 				//fw.ShowDialog();
 			};

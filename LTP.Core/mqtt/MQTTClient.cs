@@ -1,6 +1,5 @@
 ﻿using MQTTnet;
 using MQTTnet.Client;
-using MQTTnet.Client;
 using MQTTnet.Extensions.ManagedClient;
 using MQTTnet.Formatter;
 using MQTTnet.Packets;
@@ -13,9 +12,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MQTTnet.Formatter;
 
-namespace LegoTrainProject.LTP.Core.mqtt
+namespace LegoTrainProject
 {
 	public class MQTTClient
 	{
@@ -32,7 +30,7 @@ namespace LegoTrainProject.LTP.Core.mqtt
 
 		}
 
-		public async void ConnectToServer(string server, int port)
+		public async void ConnectToServer(string clientID, string server, int port)
 		{
 			var mqttFactory = new MqttFactory();
 
@@ -46,7 +44,7 @@ namespace LegoTrainProject.LTP.Core.mqtt
 
 			var options = new MqttClientOptions
 			{
-				ClientId = "BAPSubscriber",
+				ClientId = clientID,
 				ProtocolVersion = MqttProtocolVersion.V311,
 				ChannelOptions = new MqttClientTcpOptions
 				{

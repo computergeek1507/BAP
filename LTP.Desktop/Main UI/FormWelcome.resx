@@ -118,7 +118,47 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="richTextBox1.Text" xml:space="preserve">
-    <value>
+    <value>Version 1.7 Change Notes
+----------------------------
+-MQTT Support
+-Xbox Controller Support
+-RCX Hub
+
+Version 1.6 Change Notes
+----------------------------
+- Changed tracking of Bluetooth devices by address and advertising to eliminate tracking duplicates
+- Reformatted console text
+- Added Technic Hub to list of devices
+- Add MU (Multiple Unit) function, where motors (i.e., Train Motors and Switches) can be link to function together; changes background color to indicated 'linked' ports
+- Reformatted Programs tool strip menu
+- Added 'Change Speed' option to list of functions under program events
+- Changed style of and increased track bar size, and reformatted windows/panels for size throughout
+- Changed email address and removed pre message
+- Removed donation link, changed to lgauge.com for info
+- Changes lights to default to 50% when hub is connected
+- Added flag to help read battery status from Sytem Hubs
+- Added battery voltage and amperage
+- Modified to help get distance sensor data
+- Lowered sensistivity on color sensor, does create occassional reading errors, but seems to be a little more accurate
+- Added Hub rename functionality to change the Bluetooth device name
+- Added invert funcion, to reverse motor direction for locos and switches
+- Added buttons to manually change the color output of sensors
+- Changed switch motor duration for different design
+- Fixed various typos in code and displays
+- Changed automation function to ignore train with no path selected
+- Changed stopping of trains to NOT use brake functionality
+- Modified anti-collision to provide Red, Yellow and Green 'signals' on Hubs
+- Added functionality to disconnect button to 'hide' panel when selected again
+- Added pre-set buttons for light brightness
+- Changed distance sensor to show absolute value (0-10) and rough equivalent cm from WeDo 2.0 Distance and Color/Distance Sensor
+- Plays 'chimes' when speed is adjusted to zero manually
+- Added name for amended by, with created by
+- Disabled 'welcome' screen
+- Added 'emergency stop' - use space bar to stop all hubs
+- Changed default maximum speed to 50 for automatic sections
+- Added port info is removed when a device is disconnected
+- Added Icon from spash screen
+
 Welcome to "The Brick Automation Project" V1.5!
 
 This software being free and developped for the communuty, I am extremely grateful to the following people for their kind donation.
@@ -267,19 +307,23 @@ Major update with this version:
 - Code editor improvement
 - Fix Hub not showing up on certain configurations
 - Add 'State' variable to each hubs
- 
-
-
-</value>
+ </value>
   </data>
   <data name="richTextBox2.Text" xml:space="preserve">
-    <value>Copyright (c) 2019 Vincent Vergonjeanne
+    <value>Created by Vincent Vergonjeanne (amended by Tom Cook and Scott Hanson) 
+
+Inspired by the great work of Nathan Kellenicki
+https://github.com/nathankellenicki/node-poweredup
+
+Go to Lgauge.com for info and privacy policy
+https://lgauge.com/article.php?article=trains/gallery/articles/bap
+
+Copyright (c) 2019 Vincent Vergonjeanne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, publish, distribute copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-</value>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</value>
   </data>
 </root>

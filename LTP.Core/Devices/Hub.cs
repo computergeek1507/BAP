@@ -130,7 +130,9 @@ namespace LegoTrainProject
 			WEDO = 1001,
 			PFX = 1002,
 			BUWIZZ = 1003,
-			BUWIZZ3 = 1004
+			//BUWIZZ3 = 1004,
+			MTC4PU = 1005,
+			DACTA = 1006
 		}
 
 		public enum Types
@@ -147,7 +149,9 @@ namespace LegoTrainProject
 			//added by Tom Cook to add Technic Hub to list of types
 			TECHNIC_HUB = 8,
 
-			BUWIZZ3 = 9
+			//BUWIZZ3 = 9,
+			MTC4PU = 10,
+			DACTA = 11
 		}
 
 		/// <summary>

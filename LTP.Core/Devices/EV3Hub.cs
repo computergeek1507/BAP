@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Windows.Devices.Bluetooth;
-using static LegoTrainProject.Hub;
+
 
 namespace LegoTrainProject
 {

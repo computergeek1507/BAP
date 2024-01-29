@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
 using static LegoTrainProject.TrainProgramEvent;
-using System.Net.Mail;
+//using System.Net.Mail;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -15,7 +15,9 @@ using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Storage.Streams;
 using static LegoTrainProject.PFxHub;
 using LegoTrainProject.LTP.Desktop.Main_UI;
+using LegoTrainProject.Main_UI;
 using LegoTrainProject.LTP.Core.Devices;
+using DXNET.XInput;
 
 namespace LegoTrainProject
 {
@@ -52,8 +54,12 @@ namespace LegoTrainProject
 			ScanningMode = BluetoothLEScanningMode.Active
         };
 
-        // Helpers for UI
-        List<ComboBox> targetComboxControls = new List<ComboBox>();
+		//private Controller m_playerControl;
+
+		private MQTTClient m_mqtt = new MQTTClient();
+
+		// Helpers for UI
+		List<ComboBox> targetComboxControls = new List<ComboBox>();
         public static RichTextBox DebugConsoleBox;
 		public SectionsEditor sectionEditor;
         public static bool showColorDebug = false;
@@ -61,7 +67,7 @@ namespace LegoTrainProject
 		public static bool showBLEDebug = false;
 		//modified by Tom Cook for version change v1.6
 		//modified by Scott Hanson
-		public string Version = "V1.7 - 01/27/24";
+		public string Version = "v1.7 - 01/27/24";
 		/// <summary>
 		/// Constructor
 		/// </summary>
@@ -80,14 +86,17 @@ namespace LegoTrainProject
 
 				this.Disposed += MainBoard_Disposed;
 				DebugConsoleBox = ConsoleBox;
-
-				aboutToolStripMenuItem.DropDownItems.Add($"Version {Version}");
+				this.Text += $" - {Version}";
+				//aboutToolStripMenuItem.DropDownItems.Add($"Version {Version}");
 
 				// Load global connection settings
 				connectionLimitationSettings = ConnectionLimitationSettings.Load(AppDomain.CurrentDomain.BaseDirectory + "connectionSettings.bap");
 				UpdateDeviceScanningButtonLabel();
 
 				AddSelfDrivingTab();
+				SetupController();
+				SetupMQTT();
+				SetupOtherHubs();
 				SearchForTrains();
 			}
             catch (Exception ex)
@@ -144,6 +153,34 @@ namespace LegoTrainProject
             }
         }
 
+		/// <summary>
+		/// Setup Controller
+		/// </summary>
+		private async void SetupController()
+		{
+			try
+			{
+
+			}
+			catch (Exception ex)
+			{
+				//MainBoard.WriteLine("FATAL ERROR: We could not initialize the bluetooth watcher", Color.Red);
+				//MainBoard.WriteLine("Exception: " + ex.Message, Color.Red);
+			}
+		}
+
+		private async void SetupMQTT()
+		{
+			var client = Properties.Settings.Default.MQTTClient;
+			var server = Properties.Settings.Default.MQTTServer;
+			var port = Properties.Settings.Default.MQTTPort;
+			m_mqtt.ConnectToServer(client, server, port);
+		}
+		private async void SetupOtherHubs() 
+		{
+		
+		}
+
 		private async Task TryToConnect()
 		{
 			while (true)
@@ -183,8 +220,8 @@ namespace LegoTrainProject
 								type = Hub.HubManufacturerID.SBRIK;
 							else if (device.Name.Contains("PFx"))
 								type = Hub.HubManufacturerID.PFX;
-							else if (device.Name.Contains("Wizz3"))
-								type = Hub.HubManufacturerID.BUWIZZ3;
+							//else if (device.Name.Contains("Wizz3"))
+							//	type = Hub.HubManufacturerID.BUWIZZ3;
 							else if (device.Name.Contains("Wizz"))
 								type = Hub.HubManufacturerID.BUWIZZ;
 							else
@@ -311,9 +348,8 @@ namespace LegoTrainProject
 			//added by Tom Cook to add the Technic Hub to list of identified devices
 			else if (manufacturerID == Hub.HubManufacturerID.TECHNIC_HUB)
 				newTrain = new Hub(device, Hub.Types.TECHNIC_HUB, currentProject);
-			else if (manufacturerID == Hub.HubManufacturerID.BUWIZZ3)
-				newTrain = new BuWizz3Hub(device, Hub.Types.BUWIZZ3, currentProject);
-
+			//else if (manufacturerID == Hub.HubManufacturerID.BUWIZZ3)
+			//	newTrain = new BuWizz3Hub(device, Hub.Types.BUWIZZ3, currentProject);
 			else
 				newTrain = new Hub(device, Hub.Types.POWERED_UP_HUB, currentProject);
 
@@ -344,12 +380,6 @@ namespace LegoTrainProject
 
 		}
 
-
-
-
-
-
-
 		/////////////////////////
 		///
 		///
@@ -359,21 +389,6 @@ namespace LegoTrainProject
 		/////////////////////////
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         /////////////////////////
         ///
         ///
@@ -381,15 +396,6 @@ namespace LegoTrainProject
         ///
         ///
         /////////////////////////
-
-
-
-
-
-
-
-
-
 
 
         /// <summary>
@@ -554,11 +560,6 @@ namespace LegoTrainProject
             GenerateEventUI(page, panel, program, newEvent);
         }
 
-
-
-
-
-
         /////////////////////////
         ///
         ///
@@ -566,12 +567,6 @@ namespace LegoTrainProject
         ///
         ///
         /////////////////////////
-
-
-
-
-
-
 
 
         /// <summary>
@@ -1125,14 +1120,8 @@ namespace LegoTrainProject
                 t.Dispose();
         }
 
-
-
-
-
-
-
-
-
+		private void ReconnectMQTT(object sender, EventArgs e)
+		{ }
 
         /////////////////////////
         ///
@@ -1141,8 +1130,6 @@ namespace LegoTrainProject
         ///
         ///
         /////////////////////////
-
-
 
         public static void WriteLine(string text)
         {
@@ -1543,62 +1530,6 @@ namespace LegoTrainProject
             InitializeUIForNewProject();
         }
 
-        private void createdByVincentVergonjeanneToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //var mailMessage = new MailMessage();
-			//modified by Tom Cook to email me
-            //mailMessage.From = new MailAddress("vincent@vergonjeanne.fr");
-			//mailMessage.From = new MailAddress("tom@lgauge.com");
-			//mailMessage.Subject = "About The Lego Train Project";
-
-			//modified by Tom Cook to use simple email
-			//var filename = System.IO.Path.GetTempPath() + "tempmessage.eml";
-
-			//save the MailMessage to the filesystem
-			//SaveEmail(mailMessage, filename);
-			//Process.Start(filename);
-			Process.Start("mailto:tom@lgauge.com");
-		}
-
-        //Extension method for MailMessage to save to a file on disk
-        //public void SaveEmail(MailMessage message, string filename)
-        //{
-        //    using (var filestream = File.Open(filename, FileMode.Create))
-        //    {
-        //        var assembly = typeof(SmtpClient).Assembly;
-        //        var mailWriterType = assembly.GetType("System.Net.Mail.MailWriter");
-		//
-        //        // Get reflection info for MailWriter contructor
-        //        var mailWriterContructor = mailWriterType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(Stream) }, null);
-		//
-        //        // Construct MailWriter object with our FileStream
-        //        var mailWriter = mailWriterContructor.Invoke(new object[] { filestream });
-		//
-        //        // Get reflection info for Send() method on MailMessage
-        //        var sendMethod = typeof(MailMessage).GetMethod("Send", BindingFlags.Instance | BindingFlags.NonPublic);
-		//
-        //        sendMethod.Invoke(message, BindingFlags.Instance | BindingFlags.NonPublic, null, new object[] { mailWriter, true, true }, null);
-		//
-        //        // Finally get reflection info for Close() method on our MailWriter
-        //        var closeMethod = mailWriter.GetType().GetMethod("Close", BindingFlags.Instance | BindingFlags.NonPublic);
-		//
-        //        // Call close method
-        //        closeMethod.Invoke(mailWriter, BindingFlags.Instance | BindingFlags.NonPublic, null, new object[] { }, null);
-        //    }
-        //}
-
-        private void makeADonationToHelpSupportThisDevelopmentToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-			//modified by Tom Cook
-            //System.Diagnostics.Process.Start("https://www.paypal.me/vincentvergonjeanne");
-			System.Diagnostics.Process.Start("https://lgauge.com/article.php?article=trains/gallery/articles/bap");
-		}
-
-		private void inspiredByTheGreatWorkOfToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            System.Diagnostics.Process.Start("https://github.com/nathankellenicki/node-poweredup");
-        }
-
         private void showColorDebugToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MainBoard.showColorDebug = showColorDebugToolStripMenuItem.Checked;
@@ -1751,5 +1682,18 @@ namespace LegoTrainProject
 				simpleSound.Play();
 			}
         }
+
+        private void aboutToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+			FormWelcome fw = new FormWelcome();
+			fw.ShowDialog();
+		}
+
+        private void mQTTConnectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+			NetworkEditor nh = new NetworkEditor();
+			nh.ShowDialog();
+
+		}
     }
 }

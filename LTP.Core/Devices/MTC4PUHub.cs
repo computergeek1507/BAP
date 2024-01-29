@@ -10,7 +10,6 @@ using System.Windows.Threading;
 using Windows.Devices.Bluetooth;
 using Windows.Media.Protection.PlayReady;
 using static LegoTrainProject.Hub;
-using LegoTrainProject.LTP.Core.mqtt;
 
 namespace LegoTrainProject
 {
@@ -44,25 +43,26 @@ namespace LegoTrainProject
 			Port portC = new Port("C", 2, true);
 			Port portD = new Port("D", 3, true);
 
-			Port port1 = new Port("One", 4, true);
-			Port port2 = new Port("Two", 5, true);
-			Port port3 = new Port("Three", 6, true);
-			Port port4 = new Port("Four", 7, true);
+			//Port port1 = new Port("One", 4, true);
+			//Port port2 = new Port("Two", 5, true);
+			//Port port3 = new Port("Three", 6, true);
+			//Port port4 = new Port("Four", 7, true);
 
 			RegistredPorts.Add(portA);
 			RegistredPorts.Add(portB);
 			RegistredPorts.Add(portC);
 			RegistredPorts.Add(portD);
 
-			RegistredPorts.Add(port1);
-			RegistredPorts.Add(port2);
-			RegistredPorts.Add(port3);
-			RegistredPorts.Add(port4);
+
+			//RegistredPorts.Add(port1);
+			//RegistredPorts.Add(port2);
+			//RegistredPorts.Add(port3);
+			//RegistredPorts.Add(port4);
 		}
 
 		public void TryToConnect()
 		{
-			MainBoard.WriteLine("Connecting to EV3 on port " + DeviceId);
+			MainBoard.WriteLine("Connecting to MQTT on port " + DeviceId);
 
 			//var conType = CreateConnection();
 
@@ -176,6 +176,8 @@ namespace LegoTrainProject
 			portObj.Speed = brightness;
 			OnDataUpdated();
 			//brick.DirectCommand.(OutputPort.A, speed);
+			//rocrail/service/command
+			//<lc id="123" addr="10194" dir="true" V="51" V_max="100" />
 		}
 
 		public override void Disconnect()

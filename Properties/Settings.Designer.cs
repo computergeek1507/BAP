@@ -25,13 +25,61 @@ namespace LegoTrainProject.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool Setting {
+        [global::System.Configuration.DefaultSettingValueAttribute("BAPClient")]
+        public string MQTTClient {
             get {
-                return ((bool)(this["Setting"]));
+                return ((string)(this["MQTTClient"]));
             }
             set {
-                this["Setting"] = value;
+                this["MQTTClient"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MQTTServer {
+            get {
+                return ((string)(this["MQTTServer"]));
+            }
+            set {
+                this["MQTTServer"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1883")]
+        public int MQTTPort {
+            get {
+                return ((int)(this["MQTTPort"]));
+            }
+            set {
+                this["MQTTPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MQTTUser {
+            get {
+                return ((string)(this["MQTTUser"]));
+            }
+            set {
+                this["MQTTUser"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public string MQTTPassword {
+            get {
+                return ((string)(this["MQTTPassword"]));
+            }
+            set {
+                this["MQTTPassword"] = value;
             }
         }
     }

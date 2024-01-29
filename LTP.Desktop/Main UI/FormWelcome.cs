@@ -31,5 +31,10 @@ namespace LegoTrainProject.Main_UI
 		{
 
 		}
-	}
+
+        private void richTextBox2_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+			System.Diagnostics.Process.Start(e.LinkText);			
+		}
+    }
 }
