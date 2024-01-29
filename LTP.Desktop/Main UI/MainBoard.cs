@@ -17,7 +17,7 @@ using static LegoTrainProject.PFxHub;
 using LegoTrainProject.LTP.Desktop.Main_UI;
 using LegoTrainProject.Main_UI;
 using LegoTrainProject.LTP.Core.Devices;
-using DXNET.XInput;
+//using DXNET.XInput;
 
 namespace LegoTrainProject
 {
@@ -27,8 +27,8 @@ namespace LegoTrainProject
 		/// TODO
 		///
 		/// Add donors
-		/// - Add color trigger paramters
-		/// - Interative Map
+		/// - Add color trigger parameters
+		/// - Interactive Map
 		/// - Tilt Support
 		///
 		/// </summary>
@@ -38,8 +38,8 @@ namespace LegoTrainProject
         private delegate void AddControlToFlowPanelThreadSafeDelegate(FlowLayoutPanel host, Control control, bool addLineBreak);
         private delegate void RefreshTrainEventComboBoxThreadSafeDelegate();
 
-        // Trains & Program Logics
-        TrainProject currentProject = new TrainProject();
+		// Trains & Program Logics
+		TrainProject currentProject = new TrainProject();
 
         // Hardware Devices
         public static List<ulong> registeredBluetoothDevices = new List<ulong>();
@@ -66,7 +66,7 @@ namespace LegoTrainProject
 		public ConnectionLimitationSettings connectionLimitationSettings;
 		public static bool showBLEDebug = false;
 		//modified by Tom Cook for version change v1.6
-		//modified by Scott Hanson
+		//modified by Scott Hanson for version change v1.7
 		public string Version = "v1.7 - 01/27/24";
 		/// <summary>
 		/// Constructor
@@ -174,11 +174,14 @@ namespace LegoTrainProject
 			var client = Properties.Settings.Default.MQTTClient;
 			var server = Properties.Settings.Default.MQTTServer;
 			var port = Properties.Settings.Default.MQTTPort;
+
+			if (string.IsNullOrEmpty(server))
+				return;
 			m_mqtt.ConnectToServer(client, server, port);
 		}
-		private async void SetupOtherHubs() 
+		private async void SetupOtherHubs()
 		{
-		
+
 		}
 
 		private async Task TryToConnect()
@@ -220,8 +223,8 @@ namespace LegoTrainProject
 								type = Hub.HubManufacturerID.SBRIK;
 							else if (device.Name.Contains("PFx"))
 								type = Hub.HubManufacturerID.PFX;
-							//else if (device.Name.Contains("Wizz3"))
-							//	type = Hub.HubManufacturerID.BUWIZZ3;
+							else if (device.Name.Contains("Wizz3"))
+								type = Hub.HubManufacturerID.BUWIZZ3;
 							else if (device.Name.Contains("Wizz"))
 								type = Hub.HubManufacturerID.BUWIZZ;
 							else
@@ -348,8 +351,8 @@ namespace LegoTrainProject
 			//added by Tom Cook to add the Technic Hub to list of identified devices
 			else if (manufacturerID == Hub.HubManufacturerID.TECHNIC_HUB)
 				newTrain = new Hub(device, Hub.Types.TECHNIC_HUB, currentProject);
-			//else if (manufacturerID == Hub.HubManufacturerID.BUWIZZ3)
-			//	newTrain = new BuWizz3Hub(device, Hub.Types.BUWIZZ3, currentProject);
+			else if (manufacturerID == Hub.HubManufacturerID.BUWIZZ3)
+				newTrain = new BuWizz3Hub(device, Hub.Types.BUWIZZ3, currentProject);
 			else
 				newTrain = new Hub(device, Hub.Types.POWERED_UP_HUB, currentProject);
 
@@ -1595,6 +1598,12 @@ namespace LegoTrainProject
 
 		private async void connectToEV3HubToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			SerialHubs dlg = new SerialHubs(currentProject);
+			SerialHubs.OtherHubUpdate += OnNewOtherHubAdded;
+
+			dlg.ShowDialog();
+			return;
+
 			string result = Microsoft.VisualBasic.Interaction.InputBox("Enter the COM number of your EV3" + Environment.NewLine + "To discover your COM number check out the tutorial in the Help section.", "EV3 Bluetooth COM Number", "COM5");
 
 			if (result != string.Empty)
@@ -1695,5 +1704,49 @@ namespace LegoTrainProject
 			nh.ShowDialog();
 
 		}
-    }
+
+		public async void OnNewOtherHubAdded(string name, Hub.Types hType)
+		{
+			// Do we already know this train?
+			foreach (Hub t in currentProject.RegisteredTrains)
+			{
+				if (t.DeviceId == name)
+				{
+					//EV3Hub ev3hub = (EV3Hub)t;
+					t.TryToConnect();
+					return;
+				}
+			}
+			Hub newHub = null;
+			switch (hType)
+			{
+				case Hub.Types.EV3:
+					newHub = new EV3Hub(null, Hub.Types.EV3, currentProject, name);
+					break;
+				case Hub.Types.DACTA:
+					newHub = new DACTAHub(null, Hub.Types.DACTA, currentProject, name);
+					break;
+				case Hub.Types.MTC4PU:
+					newHub = new MTC4PUHub(null, Hub.Types.MTC4PU, currentProject, name, m_mqtt);
+					break;
+			}
+
+			if (newHub == null)
+				return;
+			//EV3Hub h = new EV3Hub(null, Hub.Types.EV3, currentProject, name);
+			newHub.TryToConnect();
+
+			int count = 0;
+			while (++count < 10 && !newHub.IsConnected)
+			{
+				await Task.Delay(500);
+			}
+
+			if (newHub.IsConnected)
+			{
+				currentProject.RegisteredTrains.Add(newHub);
+				AddTrainToFlowLayout(newHub);
+			}
+		}
+	}
 }

@@ -175,6 +175,12 @@
     <Compile Include="LTP.Core\Devices\EV3Hub.cs" />
     <Compile Include="LTP.Core\Devices\RemoteHub.cs" />
     <Compile Include="LTP.Core\Devices\WedoHub.cs" />
+    <Compile Include="LTP.Desktop\Sections UI\ListSelection.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LTP.Desktop\Sections UI\ListSelection.Designer.cs">
+      <DependentUpon>ListSelection.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -301,6 +307,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="LTP.Desktop\Program\ToolStripProgram.resx">
       <DependentUpon>ToolStripProgram.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LTP.Desktop\Sections UI\ListSelection.resx">
+      <DependentUpon>ListSelection.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

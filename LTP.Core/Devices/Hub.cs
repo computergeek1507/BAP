@@ -74,9 +74,9 @@ namespace LegoTrainProject
         /// Battery Level
         /// </summary>
         [NonSerialized]
-       
+
 		public double BatteryLevel = 0;
-		
+
 		//added by Tom Cook to flag if the battery level needs to be initialized
 		public bool updateBatteryLevel = true;
 
@@ -99,7 +99,7 @@ namespace LegoTrainProject
 		public List<Port> RegistredPorts = new List<Port>();
 
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		[NonSerialized]
 		public int[] State = new int[100];
@@ -130,7 +130,7 @@ namespace LegoTrainProject
 			WEDO = 1001,
 			PFX = 1002,
 			BUWIZZ = 1003,
-			//BUWIZZ3 = 1004,
+			BUWIZZ3 = 1004,
 			MTC4PU = 1005,
 			DACTA = 1006
 		}
@@ -149,7 +149,7 @@ namespace LegoTrainProject
 			//added by Tom Cook to add Technic Hub to list of types
 			TECHNIC_HUB = 8,
 
-			//BUWIZZ3 = 9,
+			BUWIZZ3 = 9,
 			MTC4PU = 10,
 			DACTA = 11
 		}
@@ -243,6 +243,8 @@ namespace LegoTrainProject
 			RemoteTriggered?.Invoke(hub, p, button);
 		}
 
+		public virtual void TryToConnect() { }
+
 		public void OnPortTypeUpdate()
 		{
 			// Let HubControl know that UI needs update
@@ -328,7 +330,7 @@ namespace LegoTrainProject
 		////
 		////
 		////
-		//// Low Level Communication Functions 
+		//// Low Level Communication Functions
 		////
 		////
 		////
@@ -349,7 +351,7 @@ namespace LegoTrainProject
         {
             try
             {
-			
+
 				// Assign the device to this hub
 				Device = device;
 
@@ -358,7 +360,7 @@ namespace LegoTrainProject
 
 				// Obtain a fresh Characteristics
 				await RenewCharacteristic();
-				
+
 				// If it succeeded
 				if (Characteristic != null)
 				{
@@ -392,7 +394,7 @@ namespace LegoTrainProject
 				Dispose();
 			}
 
-			
+
 			OnDataUpdated();
 		}
 
@@ -588,7 +590,7 @@ namespace LegoTrainProject
                 System.Buffer.BlockCopy(data, 0, rv, 0, data.Length);
                 return rv;
             }
-                
+
             return data;
         }
 
@@ -603,7 +605,7 @@ namespace LegoTrainProject
 			// Technic Medium Hub    -      4095      4175    4095
 
 			if (data[3] == 0x3b && (Type == Types.POWERED_UP_REMOTE || this.GetType() == typeof(RemoteHub)))
-			{ 
+			{
 				// Voltage (PUP Remote)
 				data = PadMessage(data, 6);
 				//modified by Tom Cook to use precise numbers according to node.js info
@@ -626,7 +628,7 @@ namespace LegoTrainProject
 			}
 
 			else if (data[3] == 0x3c)
-            { 
+            {
 				// Voltage (PUP System Hub)
                 data = PadMessage(data, 6);
 				//modified by Tom Cook to use precise data from node.js info
@@ -664,7 +666,7 @@ namespace LegoTrainProject
 							DistanceTriggered?.Invoke(this, port, (int)distance);
 							OnDataUpdated();
 						}
-                        
+
                         break;
                     }
                     case Port.Devices.BOOST_DISTANCE:
@@ -728,7 +730,7 @@ namespace LegoTrainProject
                         }
                         else
                             MainBoard.WriteLine("ERROR: Issue with Color Packet. It was too short!!", Color.Red);
-                            
+
                         break;
                     }
 					case Devices.POWERED_UP_REMOTE_BUTTON:
@@ -775,7 +777,7 @@ namespace LegoTrainProject
         {
 			if (name.Length > 14)
 				return false;
-			
+
 			byte[] preamble = { 0x01, 0x01, 0x01 };
 			byte[] data = Encoding.ASCII.GetBytes(name);
 			byte[] bytes = new byte[preamble.Length + data.Length];
@@ -933,7 +935,7 @@ namespace LegoTrainProject
 
 		public virtual void SetLightBrightness(string port, int brightness)
 		{
-		
+
 			Port portObj = GetPortFromPortId(port);
 
 			// If we can't find the port, we can't do anything!
@@ -1090,7 +1092,7 @@ namespace LegoTrainProject
 						System.Timers.Timer timer = new System.Timers.Timer(700);
 						timer.Elapsed += (object sender, ElapsedEventArgs ev) =>
 						{
-							// Stop it after 700ms 
+							// Stop it after 700ms
 							timer.Stop();
 							Stop(port);
 
@@ -1102,7 +1104,7 @@ namespace LegoTrainProject
 								SetMotorSpeed(port, targetPort.TargetSpeed);
 								timer = new System.Timers.Timer(700);
 								timer.Elapsed += (object sender3, ElapsedEventArgs ev3) =>
-								{									
+								{
 									timer.Stop();
 									timer.Dispose();
 									Stop(port);
@@ -1124,7 +1126,7 @@ namespace LegoTrainProject
 						System.Timers.Timer timer = new System.Timers.Timer(200);
 						timer.Elapsed += (object sender, ElapsedEventArgs ev) =>
 						{
-							// Stop it after 500ms 
+							// Stop it after 500ms
 							timer.Stop();
 							Stop(port, true);
 						};
@@ -1139,7 +1141,7 @@ namespace LegoTrainProject
 						System.Timers.Timer timer = new System.Timers.Timer(500);
 						timer.Elapsed += (object sender, ElapsedEventArgs ev) =>
 						{
-							// Stop it after 700ms 
+							// Stop it after 700ms
 							timer.Stop();
 							Stop(port);
 						};
@@ -1407,8 +1409,8 @@ namespace LegoTrainProject
 				port.Device = type;
 				MainBoard.WriteLine("Port Connected: " + port.Id + " of type " + Enum.GetName(typeof(Port.Devices), type), Color.Green);
 
-				if (port.Device == Port.Devices.TRAIN_MOTOR || port.Device == Port.Devices.BOOST_MOTOR || port.Device == Port.Devices.BOOST_EXT_MOTOR 
-					|| port.Device == Port.Devices.BASIC_MOTOR || port.Device == Devices.EV3_MOTOR 
+				if (port.Device == Port.Devices.TRAIN_MOTOR || port.Device == Port.Devices.BOOST_MOTOR || port.Device == Port.Devices.BOOST_EXT_MOTOR
+					|| port.Device == Port.Devices.BASIC_MOTOR || port.Device == Devices.EV3_MOTOR
 					|| port.Device == Devices.CONTROL_PLUS_L_MOTOR || port.Device == Devices.CONTROL_PLUS_XL_MOTOR)
 				{
 					if (port.Device == Port.Devices.TRAIN_MOTOR)

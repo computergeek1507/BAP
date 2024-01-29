@@ -70,7 +70,7 @@ namespace LegoTrainProject
 			RegistredPorts.Add(port4);
 		}
 
-		public void TryToConnect()
+		public override void TryToConnect()
 		{
 			MainBoard.WriteLine("Connecting to EV3 on port " + DeviceId);
 

@@ -18,15 +18,15 @@ namespace LegoTrainProject
 	{
 
 		[NonSerialized]
-		MQTTClient MqttClient;
+		MQTTClient _mqttClient;
 
 		//modified by Tom Cook for MU function to add TrainProject project to class where need to loop thru all hubs and ports
 		//public MTC4PUHub(BluetoothLEDevice device, Types type, string comAddress) : base(device, type)
-		public MTC4PUHub(BluetoothLEDevice device, Types type, TrainProject project, MQTTClient mqttClient) : base(device, type, project)
+		public MTC4PUHub(BluetoothLEDevice device, Types type, TrainProject project, string trainID, MQTTClient mqttClient) : base(device, type, project)
 		{
 			Name = "MTC4PU";
-			//DeviceId = comAddress;
-			MqttClient = mqttClient;
+			DeviceId = trainID;
+			_mqttClient = mqttClient;
 			Type = type;
 			IsConnected = false;
 
@@ -60,12 +60,12 @@ namespace LegoTrainProject
 			//RegistredPorts.Add(port4);
 		}
 
-		public void TryToConnect()
+		public override void TryToConnect()
 		{
 			MainBoard.WriteLine("Connecting to MQTT on port " + DeviceId);
 
 			//var conType = CreateConnection();
-
+			IsConnected = _mqttClient.IsConnected();
 		}
 
 		//private void Brick_BrickChanged(object sender, BrickChangedEventArgs e)
@@ -129,7 +129,7 @@ namespace LegoTrainProject
 		//}
 
 
-		
+
 
 		protected override void ActivatePortDevice(byte port, byte type, byte mode, byte format)
 		{
@@ -160,6 +160,11 @@ namespace LegoTrainProject
 
 			//OutputPort outputPort = (port == "A") ? OutputPort.A : (port == "B") ? OutputPort.B : (port == "C") ? OutputPort.C : OutputPort.D;
 			//brick.DirectCommand.TurnMotorAtPowerAsync(outputPort, speed);
+			bool direction = (speed > 0);
+			int absSpeed = Math.Abs(speed);
+			////<lc id="123" addr="10194" dir="true" V="51" V_max="100" />
+
+			_mqttClient.SendMessage("rocrail/service/command", $"<lc id=\"123\" addr=\"{DeviceId}\" dir=\"{direction}\" V=\"{absSpeed}\" V_max=\"100\"/>");
 		}
 
 		public override void SetLightBrightness(string port, int brightness)

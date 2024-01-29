@@ -19,10 +19,9 @@ namespace LegoTrainProject
 	{
 
 		/// <summary>
-		/// The managed subscriber client.
+		/// The managed client.
 		/// </summary>
-		private IManagedMqttClient managedMqttClientSubscriber;
-
+		private IMqttClient _mqttClient;
 		public MQTTClient() {
 
 
@@ -41,7 +40,9 @@ namespace LegoTrainProject
 				IgnoreCertificateRevocationErrors = true,
 				AllowUntrustedCertificates = true
 			};
-
+			//var mqttClientOptions = new MqttClientOptionsBuilder()
+			//   .WithTcpServer("broker.hivemq.com")
+			//   .Build();
 			var options = new MqttClientOptions
 			{
 				ClientId = clientID,
@@ -63,17 +64,13 @@ namespace LegoTrainProject
 			options.CleanSession = true;
 			options.KeepAlivePeriod = TimeSpan.FromSeconds(5);
 
-			managedMqttClientSubscriber = mqttFactory.CreateManagedMqttClient();
-			managedMqttClientSubscriber.ConnectedAsync += OnSubscriberConnected;
-			managedMqttClientSubscriber.DisconnectedAsync += OnSubscriberDisconnected;
-			managedMqttClientSubscriber.ApplicationMessageReceivedAsync += this.OnSubscriberMessageReceived;
+			_mqttClient = mqttFactory.CreateMqttClient();
+			_mqttClient.ConnectedAsync += OnSubscriberConnected;
+			_mqttClient.DisconnectedAsync += OnSubscriberDisconnected;
+			_mqttClient.ApplicationMessageReceivedAsync += this.OnSubscriberMessageReceived;
 
-			await managedMqttClientSubscriber.StartAsync(
-				new ManagedMqttClientOptions
-				{
-					ClientOptions = options
-				});
-
+			await _mqttClient.ConnectAsync( options, CancellationToken.None);
+			//managedMqttClientSubscriber.ConnectAsync(_options).Wait();
 
 		}
 
@@ -115,6 +112,38 @@ namespace LegoTrainProject
 		{
 			//MessageBox.Show("Subscriber Disconnected", "ConnectHandler", MessageBoxButtons.OK, MessageBoxIcon.Information);
 			return Task.CompletedTask;
+		}
+
+		public bool IsConnected()
+		{
+			if (_mqttClient == null)
+				return false;
+			return _mqttClient.IsConnected;
+		}
+		public async void SendMessage(string topic, string strmessage)
+		{
+			var message = new MqttApplicationMessageBuilder()
+			.WithTopic(topic)
+			.WithPayload(strmessage)
+			.WithRetainFlag(false)
+			.Build();
+
+			try
+			{
+				await _mqttClient.PublishAsync(message);
+			}
+			catch (NullReferenceException e) { /* ... */  }
+		}
+
+
+
+		public async void StopAsync()
+		{
+			if (_mqttClient != null)
+			{
+				await _mqttClient.DisconnectAsync();
+				await Task.Delay(System.TimeSpan.FromSeconds(2));
+			}
 		}
 	}
 }

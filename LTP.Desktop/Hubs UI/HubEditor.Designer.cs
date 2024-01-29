@@ -74,20 +74,18 @@ namespace LegoTrainProject
 			this.groupBox1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.groupBox1.Size = new System.Drawing.Size(398, 167);
+			this.groupBox1.Size = new System.Drawing.Size(398, 368);
 			this.groupBox1.TabIndex = 2;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Port Setup";
 			// 
 			// flowLayoutPanelPort
 			// 
-			this.flowLayoutPanelPort.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.flowLayoutPanelPort.Location = new System.Drawing.Point(5, 18);
+			this.flowLayoutPanelPort.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.flowLayoutPanelPort.Location = new System.Drawing.Point(2, 16);
 			this.flowLayoutPanelPort.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
 			this.flowLayoutPanelPort.Name = "flowLayoutPanelPort";
-			this.flowLayoutPanelPort.Size = new System.Drawing.Size(387, 145);
+			this.flowLayoutPanelPort.Size = new System.Drawing.Size(394, 349);
 			this.flowLayoutPanelPort.TabIndex = 0;
 			// 
 			// label2
@@ -131,9 +129,10 @@ namespace LegoTrainProject
 			// 
 			// button1
 			// 
+			this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.button1.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.button1.Location = new System.Drawing.Point(211, 277);
-			this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.button1.Location = new System.Drawing.Point(317, 462);
+			this.button1.Margin = new System.Windows.Forms.Padding(2);
 			this.button1.Name = "button1";
 			this.button1.Size = new System.Drawing.Size(80, 27);
 			this.button1.TabIndex = 7;
@@ -143,7 +142,7 @@ namespace LegoTrainProject
 			// btnRename
 			// 
 			this.btnRename.Location = new System.Drawing.Point(164, 6);
-			this.btnRename.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.btnRename.Margin = new System.Windows.Forms.Padding(2);
 			this.btnRename.Name = "btnRename";
 			this.btnRename.Size = new System.Drawing.Size(79, 22);
 			this.btnRename.TabIndex = 8;
@@ -156,7 +155,7 @@ namespace LegoTrainProject
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.button1;
-			this.ClientSize = new System.Drawing.Size(408, 327);
+			this.ClientSize = new System.Drawing.Size(408, 500);
 			this.Controls.Add(this.btnRename);
 			this.Controls.Add(this.button1);
 			this.Controls.Add(this.comboBoxColors);
@@ -166,13 +165,13 @@ namespace LegoTrainProject
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.comboBoxType);
 			this.Controls.Add(this.label1);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "HubEditor";
-			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
 			this.Text = "Hub Editor";
 			this.Shown += new System.EventHandler(this.HubEditor_Shown);
 			this.groupBox1.ResumeLayout(false);

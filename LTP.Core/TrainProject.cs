@@ -75,7 +75,7 @@ namespace LegoTrainProject
         }
 
         public void SaveAs(string path)
-        {            
+        {
             try
             {
                 IFormatter formatter = new BinaryFormatter();

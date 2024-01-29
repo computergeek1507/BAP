@@ -7,13 +7,11 @@ using Windows.Devices.Bluetooth;
 using System.IO;
 using System.IO.Ports;
 using System.Drawing;
+using System.Timers;
 
 namespace LegoTrainProject
 {
-
-
 	[Serializable]
-
     class DACTAHub : Hub
     {
 		/*
@@ -26,6 +24,9 @@ namespace LegoTrainProject
 		 */
 		[NonSerialized]
 		SerialPort _serialPort;
+
+		[NonSerialized]
+		private Timer timer1;
 
 		public DACTAHub(BluetoothLEDevice device, Types type, TrainProject project, string comAddress) : base(device, type, project)
 		{
@@ -64,7 +65,7 @@ namespace LegoTrainProject
 			RegistredPorts.Add(port4);
 		}
 
-		public void TryToConnect()
+		public override void TryToConnect()
 		{
 			MainBoard.WriteLine("Connecting to DACTA on port " + DeviceId);
 
@@ -86,6 +87,16 @@ namespace LegoTrainProject
 			//_reader = new BinaryReader(_serialPort.BaseStream);
 			_serialPort.WriteLine("p\0###Do you byte, when I knock?$$$");
 			_serialPort.WriteLine("p\0###Do you byte, when I knock?$$$");
+			IsConnected = true;
+			timer1 = new Timer();
+			timer1.Elapsed += (sender, e) =>
+			{
+				SendKeepAlive();
+			};
+
+			timer1.Interval = 2000;//miliseconds
+			timer1.Start();
+
 			return Task.FromResult(true);
 		}
 
@@ -99,6 +110,10 @@ namespace LegoTrainProject
 		/// </summary>
 		public override void Disconnect()
 		{
+			if (timer1 != null)
+			{
+				timer1.Dispose();
+			}
 			if (_serialPort != null)
 			{
 				_serialPort.WriteLine("p\0###Do you byte, when I knock?$$$");
@@ -265,7 +280,7 @@ namespace LegoTrainProject
 
 		} //end timer send and receive
 
-		private void timer_keepalive_Tick(object sender, EventArgs e)
+		private void SendKeepAlive()
 		{
 			byte[] kcommand = new byte[1] { 2 };
 			WriteAsync(kcommand);
