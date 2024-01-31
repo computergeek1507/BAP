@@ -131,7 +131,7 @@ namespace LegoTrainProject
 			PFX = 1002,
 			BUWIZZ = 1003,
 			BUWIZZ3 = 1004,
-			MTC4PU = 1005,
+			WIO = 1005,
 			DACTA = 1006
 		}
 
@@ -150,7 +150,7 @@ namespace LegoTrainProject
 			TECHNIC_HUB = 8,
 
 			BUWIZZ3 = 9,
-			MTC4PU = 10,
+			WIO = 10,
 			DACTA = 11
 		}
 
@@ -1078,7 +1078,7 @@ namespace LegoTrainProject
 			ActivateSwitch(port, (targetPort.TargetSpeed == 0) ? true : (targetPort.TargetSpeed < 0));
 		}
 
-		public void ActivateSwitch(string port, bool left)
+		public virtual void ActivateSwitch(string port, bool left)
         {
 			Port targetPort = GetPortFromPortId(port);
 

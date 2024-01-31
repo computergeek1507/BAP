@@ -30,7 +30,7 @@ namespace LegoTrainProject
 			listBoxSerialHubs.Items.Clear();
 			foreach (var hub in m_train.RegisteredTrains)
 			{
-				if (hub.Type == Hub.Types.DACTA || hub.Type == Hub.Types.EV3 || hub.Type == Hub.Types.MTC4PU)
+				if (hub.Type == Hub.Types.DACTA || hub.Type == Hub.Types.EV3 || hub.Type == Hub.Types.WIO)
 				{
 					listBoxSerialHubs.Items.Add($"{hub.Type}: {hub.DeviceId}");
 				}
@@ -39,10 +39,10 @@ namespace LegoTrainProject
 
         private void toolStripButtonMTC4PU_Click(object sender, EventArgs e)
         {
-			string result = Microsoft.VisualBasic.Interaction.InputBox("Enter MTC4PU RocRail ID" , "MTC4PU RocRail ID", "1");
+			string result = Microsoft.VisualBasic.Interaction.InputBox("Enter WIO RocRail ID", "MTC4PU WIO ID", "1");
 			if (result != string.Empty)
 			{
-				OnHubAdded(result, Hub.Types.MTC4PU);
+				OnHubAdded(result, Hub.Types.WIO);
 			}
 			RedrawItems();
 		}

@@ -506,7 +506,8 @@ namespace LegoTrainProject
 								p.label.Text = $"- Port {p.Id} -" + Environment.NewLine + $"Speed: {tb.Value}";
 							}
 						}
-						else if (p.Function == Port.Functions.SWITCH_TRIXBRIX || p.Function == Port.Functions.SWITCH_STANDARD || p.Function == Port.Functions.SWITCH_DOUBLECROSS)
+						else if (p.Function == Port.Functions.SWITCH_TRIXBRIX || 
+							p.Function == Port.Functions.SWITCH_STANDARD || p.Function == Port.Functions.SWITCH_DOUBLECROSS)
 						{
 							//modified by Tom Cook for 'inverted' function. Mod not necessary, since invert check/changed in SetMotorSpeed()
 							p.label.Text = $"- Port {p.Id} -" + Environment.NewLine + "Pos: " + ((p.TargetSpeed == 0) ? "Unknown" : (p.TargetSpeed < 0) ? "Left" : "Right");

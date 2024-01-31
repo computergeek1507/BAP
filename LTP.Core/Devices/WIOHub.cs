@@ -14,7 +14,7 @@ using static LegoTrainProject.Hub;
 namespace LegoTrainProject
 {
 	[Serializable]
-	class MTC4PUHub : Hub
+	class WIOHub : Hub
 	{
 
 		[NonSerialized]
@@ -22,7 +22,7 @@ namespace LegoTrainProject
 
 		//modified by Tom Cook for MU function to add TrainProject project to class where need to loop thru all hubs and ports
 		//public MTC4PUHub(BluetoothLEDevice device, Types type, string comAddress) : base(device, type)
-		public MTC4PUHub(BluetoothLEDevice device, Types type, TrainProject project, string trainID, MQTTClient mqttClient) : base(device, type, project)
+		public WIOHub(BluetoothLEDevice device, Types type, TrainProject project, string trainID, MQTTClient mqttClient) : base(device, type, project)
 		{
 			Name = "MTC4PU";
 			DeviceId = trainID;
@@ -67,69 +67,6 @@ namespace LegoTrainProject
 			//var conType = CreateConnection();
 			IsConnected = _mqttClient.IsConnected();
 		}
-
-		//private void Brick_BrickChanged(object sender, BrickChangedEventArgs e)
-		//{
-		//	IsConnected = true;
-		//	bool somethingChanged = false;
-		//
-		//	foreach (InputPort type in (InputPort[])Enum.GetValues(typeof(InputPort)))
-		//	{
-		//		// Get the port
-		//		Port p = GetPortFromPortId(type.ToString());
-		//
-		//		// Check device type
-		//		Port.Devices device = ConvertTypeToDevice(brick.Ports[type].Type);
-		//
-		//		// Are we set? If not register the device type
-		//		if (p.Device != device)
-		//		{
-		//			p.Connected = (device != Port.Devices.UNKNOWN);
-		//			RegisterDeviceAttachement(p, device);
-		//		}
-		//
-		//		// We need to force Color mode if we have a color detector
-		//		if (brick.Ports[type].Type == DeviceType.Color && brick.Ports[type].Mode != (byte)ColorMode.Color)
-		//			brick.Ports[type].SetMode(ColorMode.Color);
-		//
-		//		// If we do have a color mode then let's update it!
-		//		if (brick.Ports[type].Mode == (byte)ColorMode.Color)
-		//		{
-		//			p.LatestColor = ConvertEV3ColorToPortColor((EV3Color)brick.Ports[type].RawValue);
-		//
-		//			if (MainBoard.showColorDebug)
-		//				MainBoard.WriteLine($"{Name} - Color Received: " + p.LatestColor + " last triggers was " + ((Environment.TickCount - p.LastColorTick) / 1000) + "s ago.");
-		//
-		//			if (Environment.TickCount - p.LastColorTick > p.DistanceColorCooldownMs)
-		//			{
-		//				OnColorTriggered(this, p, p.LatestColor);
-		//				OnDataUpdated();
-		//			}
-		//		}
-		//
-		//		// If we have an active sensor on, check for event trigger
-		//		else if (p.Value != brick.Ports[type].RawValue && device != Port.Devices.UNKNOWN)
-		//		{
-		//			p.LatestDistance = brick.Ports[type].RawValue;
-		//			somethingChanged = true;
-		//
-		//			if (MainBoard.showColorDebug)
-		//				MainBoard.WriteLine($"{Name} - Raw Value Received: " + brick.Ports[type].RawValue + " last triggers was " + ((Environment.TickCount - p.LastDistanceTick) / 1000) + "s ago.");
-		//
-		//			if (Environment.TickCount - p.LastDistanceTick > p.DistanceColorCooldownMs)
-		//			{
-		//				OnDistanceTriggered(this, p, p.LatestDistance);
-		//				OnDataUpdated();
-		//			}
-		//		}
-		//	}
-		//
-		//	if (somethingChanged)
-		//		OnDataUpdated();
-		//}
-
-
-
 
 		protected override void ActivatePortDevice(byte port, byte type, byte mode, byte format)
 		{
@@ -183,6 +120,35 @@ namespace LegoTrainProject
 			//brick.DirectCommand.(OutputPort.A, speed);
 			//rocrail/service/command
 			//<lc id="123" addr="10194" dir="true" V="51" V_max="100" />
+		}
+
+		public override void ActivateSwitch(string port, bool left)
+		{
+			Port targetPort = GetPortFromPortId(port);
+
+			switch (targetPort.Function)
+			{
+				case Port.Functions.SWITCH_DOUBLECROSS:
+				case Port.Functions.SWITCH_TRIXBRIX:
+				case Port.Functions.SWITCH_STANDARD:
+					{
+						targetPort.TargetSpeed = (left) ? -100 : 100;
+						//SetMotorSpeed(port, targetPort.TargetSpeed);
+						if (targetPort.Inverted)
+						{
+							left = !left;
+						}
+
+						var command = (left) ? "straight" : "turnout";
+
+						//IsBusy = (speed != 0);
+
+						OnDataUpdated();//WIO
+
+						_mqttClient.SendMessage("rocrail/service/command", $"<sw> port1=\"{targetPort.Value + 1}\" addr1=\"{DeviceId}\" cmd=\"{command}\"/>");
+						break;
+					}
+			}
 		}
 
 		public override void Disconnect()

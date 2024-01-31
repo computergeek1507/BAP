@@ -82,12 +82,19 @@ namespace LegoTrainProject
 		public Task ConnectAsync()
 		{
 			_serialPort.DataReceived += SerialPortDataReceived;
-			_serialPort.Open();
+			try
+			{
+				_serialPort.Open();
+			}
+			catch
+			{
+				return Task.FromResult(false);
+			}
 
 			//_reader = new BinaryReader(_serialPort.BaseStream);
 			_serialPort.WriteLine("p\0###Do you byte, when I knock?$$$");
 			_serialPort.WriteLine("p\0###Do you byte, when I knock?$$$");
-			IsConnected = true;
+			//IsConnected = true;
 			timer1 = new Timer();
 			timer1.Elapsed += (sender, e) =>
 			{
@@ -229,7 +236,7 @@ namespace LegoTrainProject
 			return WriteAsync(ocommand);
 		}
 
-		private void timer_counter_Tick(object sender, EventArgs e)
+		private void readData()
 		{
 			byte checksum = 0;
 			byte inBuf1, inBuf2;
@@ -256,8 +263,8 @@ namespace LegoTrainProject
 			float[] TempC = new float[4] { 0, 0, 0, 0 };
 			bool[] Touch = new bool[4] { false, false, false, false };
 			double[] Rot = new double[4];
-			bool[] Pressed = new bool[4] { false, false, false, false };
-			bool[] Released = new bool[4] { false, false, false, false };
+			//bool[] Pressed = new bool[4] { false, false, false, false };
+			//bool[] Released = new bool[4] { false, false, false, false };
 			int[] Light = new int[4] { 0, 0, 0, 0 };
 			//update temperature and touch sensor readings
 			for (int i  = 0; i < 4; i++)
@@ -282,6 +289,7 @@ namespace LegoTrainProject
 
 		private void SendKeepAlive()
 		{
+			//readData();
 			byte[] kcommand = new byte[1] { 2 };
 			WriteAsync(kcommand);
 		}

@@ -1726,8 +1726,8 @@ namespace LegoTrainProject
 				case Hub.Types.DACTA:
 					newHub = new DACTAHub(null, Hub.Types.DACTA, currentProject, name);
 					break;
-				case Hub.Types.MTC4PU:
-					newHub = new MTC4PUHub(null, Hub.Types.MTC4PU, currentProject, name, m_mqtt);
+				case Hub.Types.WIO:
+					newHub = new WIOHub(null, Hub.Types.WIO, currentProject, name, m_mqtt);
 					break;
 			}
 

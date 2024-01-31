@@ -49,7 +49,7 @@ namespace LegoTrainProject
 			TRAIN_MOTOR = 7,
 			BUTTON = 8,
 			PFX_SPEAKER = 9,
-			PFX_LIGHT_CONTROLER = 10
+			PFX_LIGHT_CONTROLER = 10,
 		}
 
 		public enum RemoteButtons
