@@ -150,6 +150,11 @@ namespace LegoTrainProject
 			portObj.Speed = speed;
 			IsBusy = (speed != 0);
 
+			if (portObj.Inverted)
+			{
+				speed = -speed;
+			}
+
 			OnDataUpdated();
 
 			int outputPort = (port == "A") ? 1 : (port == "B") ? 2 : (port == "C") ? 3 : 4;

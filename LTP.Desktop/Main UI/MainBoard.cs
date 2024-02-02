@@ -1702,7 +1702,7 @@ namespace LegoTrainProject
         {
 			NetworkEditor nh = new NetworkEditor();
 			nh.ShowDialog();
-
+			SetupMQTT();
 		}
 
 		public async void OnNewOtherHubAdded(string name, Hub.Types hType)

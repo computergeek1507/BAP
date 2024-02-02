@@ -23,10 +23,6 @@ namespace LegoTrainProject
 		/// </summary>
 		private IMqttClient _mqttClient;
 		public MQTTClient() {
-
-
-
-
 		}
 
 		public async void ConnectToServer(string clientID, string server, int port)
@@ -65,51 +61,41 @@ namespace LegoTrainProject
 			options.KeepAlivePeriod = TimeSpan.FromSeconds(5);
 
 			_mqttClient = mqttFactory.CreateMqttClient();
-			_mqttClient.ConnectedAsync += OnSubscriberConnected;
-			_mqttClient.DisconnectedAsync += OnSubscriberDisconnected;
-			_mqttClient.ApplicationMessageReceivedAsync += this.OnSubscriberMessageReceived;
-
-			await _mqttClient.ConnectAsync( options, CancellationToken.None);
+			_mqttClient.ConnectedAsync += OnMQTTConnected;
+			_mqttClient.DisconnectedAsync += OnMQTTDisconnected;
+			_mqttClient.ApplicationMessageReceivedAsync += this.OnMQTTMessageReceived;
+			try {
+				await _mqttClient.ConnectAsync(options, CancellationToken.None);
+			}
+			catch (Exception ex) { }
 			//managedMqttClientSubscriber.ConnectAsync(_options).Wait();
 
 		}
 
-		private Task OnSubscriberMessageReceived(MqttApplicationMessageReceivedEventArgs x)
+		private Task OnMQTTMessageReceived(MqttApplicationMessageReceivedEventArgs x)
 		{
 			var item = $"Timestamp: {DateTime.Now:O} | Topic: {x.ApplicationMessage.Topic} | Payload: {x.ApplicationMessage.ConvertPayloadToString()} | QoS: {x.ApplicationMessage.QualityOfServiceLevel}";
 			//this.BeginInvoke((MethodInvoker)delegate { this.TextBoxSubscriber.Text = item + Environment.NewLine + this.TextBoxSubscriber.Text; });
-			return Task.CompletedTask;
-		}
-
-		private static Task OnPublisherConnected(MqttClientConnectedEventArgs _)
-		{
-			//MessageBox.Show("Publisher Connected", "ConnectHandler", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			MainBoard.WriteLine(item);
 			return Task.CompletedTask;
 		}
 
 		/// <summary>
-		/// Handles the publisher disconnected event.
+		/// Handles the MQTT connected event.
 		/// </summary>
-		private static Task OnPublisherDisconnected(MqttClientDisconnectedEventArgs _)
+		private static Task OnMQTTConnected(MqttClientConnectedEventArgs _)
 		{
-			//MessageBox.Show("Publisher Disconnected", "ConnectHandler", MessageBoxButtons.OK, MessageBoxIcon.Information);
-			return Task.CompletedTask;
-		}
-
-		/// <summary>
-		/// Handles the subscriber connected event.
-		/// </summary>
-		private static Task OnSubscriberConnected(MqttClientConnectedEventArgs _)
-		{
+			MainBoard.WriteLine("MQTT Connected");
 			//MessageBox.Show("Subscriber Connected", "ConnectHandler", MessageBoxButtons.OK, MessageBoxIcon.Information);
 			return Task.CompletedTask;
 		}
 
 		/// <summary>
-		/// Handles the subscriber disconnected event.
+		/// Handles the MQTT disconnected event.
 		/// </summary>
-		private static Task OnSubscriberDisconnected(MqttClientDisconnectedEventArgs _)
+		private static Task OnMQTTDisconnected(MqttClientDisconnectedEventArgs _)
 		{
+			MainBoard.WriteLine("MQTT Disconnected");
 			//MessageBox.Show("Subscriber Disconnected", "ConnectHandler", MessageBoxButtons.OK, MessageBoxIcon.Information);
 			return Task.CompletedTask;
 		}

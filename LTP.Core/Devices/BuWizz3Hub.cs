@@ -39,7 +39,7 @@ namespace LegoTrainProject
 
 				MainBoard.WriteLine("New Hub Found of type " + Enum.GetName(typeof(Hub.Types), Type), Color.Green);
 			}
-		}		
+		}
 	}
 }
 

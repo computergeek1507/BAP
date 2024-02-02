@@ -22,6 +22,7 @@ namespace LegoTrainProject
             Properties.Settings.Default.MQTTPort = decimal.ToInt32(numericUpDownPort.Value);
 
             Properties.Settings.Default.MQTTPassword = textBoxPassword.Text.ToSecureString().EncryptString();
+            Properties.Settings.Default.Save();
         }
 
         private void NetworkEditor_Load(object sender, EventArgs e)
@@ -36,7 +37,6 @@ namespace LegoTrainProject
             {
                 textBoxPassword.Text = secureString.ToInsecureString();
             }
-            Properties.Settings.Default.Save();
         }
     }
 }
