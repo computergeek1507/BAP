@@ -1,5 +1,16 @@
 # The Brick Automation Project
 
+## Version 1.7 Change Notes
+----------------------------
+* MQTT Hubs - Rocrail/JMRI Commands
+* CMRI Serial Hub
+* DACTA Hub
+
+### TODO
+* PU Light to PF IR support.
+* RCX Hub support.
+* Xbox controller support.
+
 ## Version 1.6 Change Notes
 * Changed tracking of Bluetooth devices by address and advertising to eliminate tracking duplicates
 * Reformatted console text
