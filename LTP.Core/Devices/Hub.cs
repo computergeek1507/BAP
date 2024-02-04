@@ -132,7 +132,9 @@ namespace LegoTrainProject
 			BUWIZZ = 1003,
 			BUWIZZ3 = 1004,
 			WIO = 1005,
-			DACTA = 1006
+			DACTA = 1006,
+			JRMI = 1007,
+			CRMI = 1008
 		}
 
 		public enum Types
@@ -151,7 +153,9 @@ namespace LegoTrainProject
 
 			BUWIZZ3 = 9,
 			WIO = 10,
-			DACTA = 11
+			DACTA = 11,
+			JRMI = 12,
+			CRMI = 13
 		}
 
 		/// <summary>

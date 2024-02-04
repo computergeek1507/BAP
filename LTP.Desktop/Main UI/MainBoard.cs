@@ -67,7 +67,7 @@ namespace LegoTrainProject
 		public static bool showBLEDebug = false;
 		//modified by Tom Cook for version change v1.6
 		//modified by Scott Hanson for version change v1.7
-		public string Version = "v1.7 - 01/27/24";
+		public string Version = "v1.7 - 02/04/24";
 		/// <summary>
 		/// Constructor
 		/// </summary>
@@ -1728,6 +1728,12 @@ namespace LegoTrainProject
 					break;
 				case Hub.Types.WIO:
 					newHub = new WIOHub(null, Hub.Types.WIO, currentProject, name, m_mqtt);
+					break;
+				case Hub.Types.JRMI:
+					newHub = new JRMIHub(null, Hub.Types.JRMI, currentProject, name, m_mqtt);
+					break;
+				case Hub.Types.CRMI:
+					newHub = new CRMIHub(null, Hub.Types.CRMI, currentProject, name);
 					break;
 			}
 

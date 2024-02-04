@@ -120,9 +120,9 @@
   <data name="richTextBox1.Text" xml:space="preserve">
     <value>Version 1.7 Change Notes
 ----------------------------
--MQTT Support
--Xbox Controller Support
--RCX Hub
+-MQTT Hubs - Rocrail/JMRI Commands
+-CMRI Serial Hub
+-DACTA Hub
 
 Version 1.6 Change Notes
 ----------------------------

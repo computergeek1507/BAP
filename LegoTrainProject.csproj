@@ -136,6 +136,8 @@
     <Compile Include="LTP.Core\Devices\BuWizz3Hub.cs" />
     <Compile Include="LTP.Core\Devices\ConnectionLimitationSettings.cs" />
     <Compile Include="LTP.Core\Devices\DACTAHub.cs" />
+    <Compile Include="LTP.Core\Devices\CRMIHub.cs" />
+    <Compile Include="LTP.Core\Devices\JRMIHub.cs" />
     <Compile Include="LTP.Core\Devices\WIOHub.cs" />
     <Compile Include="LTP.Core\Devices\PFxHub.cs" />
     <Compile Include="LTP.Core\Devices\BuWizzHub.cs" />

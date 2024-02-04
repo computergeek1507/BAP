@@ -83,5 +83,25 @@ namespace LegoTrainProject
 		{
 			OnHubAdded(name, hType);
 		}
+
+		private void toolStripButtonJRMI_Click(object sender, EventArgs e)
+		{
+			string result = Microsoft.VisualBasic.Interaction.InputBox("Enter JRMI ID", "JRMI ID", "1");
+			if (result != string.Empty)
+			{
+				OnHubAdded(result, Hub.Types.JRMI);
+			}
+			RedrawItems();
+		}
+
+		private void toolStripButtonCRMI_Click(object sender, EventArgs e)
+		{
+			ListSelection dlg = new ListSelection("Select Serial Port", SerialPort.GetPortNames());
+			if (dlg.ShowDialog() == DialogResult.OK)
+			{
+				OnHubAdded(dlg.ListItemSelected, Hub.Types.CRMI);
+			}
+			RedrawItems();
+		}
 	}
 }

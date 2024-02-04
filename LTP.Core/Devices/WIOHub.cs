@@ -20,11 +20,11 @@ namespace LegoTrainProject
 		[NonSerialized]
 		MQTTClient _mqttClient;
 
-		//modified by Tom Cook for MU function to add TrainProject project to class where need to loop thru all hubs and ports
-		//public MTC4PUHub(BluetoothLEDevice device, Types type, string comAddress) : base(device, type)
+		//Added by Scott
+		//public WIOHub(BluetoothLEDevice device, Types type, string comAddress) : base(device, type)
 		public WIOHub(BluetoothLEDevice device, Types type, TrainProject project, string trainID, MQTTClient mqttClient) : base(device, type, project)
 		{
-			Name = "MTC4PU";
+			Name = "WIOHub";
 			DeviceId = trainID;
 			_mqttClient = mqttClient;
 			Type = type;
@@ -94,6 +94,11 @@ namespace LegoTrainProject
 			IsBusy = (speed != 0);
 
 			OnDataUpdated();
+
+			if (portObj.Inverted)
+			{
+				speed = -speed;
+			}
 
 			//OutputPort outputPort = (port == "A") ? OutputPort.A : (port == "B") ? OutputPort.B : (port == "C") ? OutputPort.C : OutputPort.D;
 			//brick.DirectCommand.TurnMotorAtPowerAsync(outputPort, speed);
