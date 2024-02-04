@@ -30,7 +30,7 @@ namespace LegoTrainProject
 			listBoxSerialHubs.Items.Clear();
 			foreach (var hub in m_train.RegisteredTrains)
 			{
-				if (hub.Type == Hub.Types.DACTA || hub.Type == Hub.Types.EV3 || hub.Type == Hub.Types.WIO)
+				if (hub.Type == Hub.Types.DACTA || hub.Type == Hub.Types.EV3 || hub.Type == Hub.Types.WIO || hub.Type == Hub.Types.JRMI || hub.Type == Hub.Types.CRMI)
 				{
 					listBoxSerialHubs.Items.Add($"{hub.Type}: {hub.DeviceId}");
 				}

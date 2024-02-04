@@ -573,12 +573,12 @@ namespace LegoTrainProject
 
 				//added by Tom Cook to show battery Volts and mAmps and to force initialization if necessary since System Hubs do not update
 				this.Visible = true;
-				if (Hub.Type != Hub.Types.WEDO_2_SMART_HUB)
+				if (Hub.Type != Hub.Types.WEDO_2_SMART_HUB && Hub.Type != Hub.Types.DACTA && Hub.Type != Hub.Types.JRMI && Hub.Type != Hub.Types.CRMI)
 					lblVolts.Text = $"{train.BatteryVoltage:F2}" + " V";
 				else
 					lblVolts.Text = "";
 				//Remotes to not have current sensor, so do not display mAmps
-				if (Hub.Type != Hub.Types.POWERED_UP_REMOTE && Hub.Type != Hub.Types.WEDO_2_SMART_HUB)
+				if (Hub.Type != Hub.Types.POWERED_UP_REMOTE && Hub.Type != Hub.Types.WEDO_2_SMART_HUB && Hub.Type != Hub.Types.DACTA && Hub.Type != Hub.Types.JRMI && Hub.Type != Hub.Types.CRMI)
 					lblAmps.Text = $"{train.BatteryCurrent:F0}" + " mA";
 				else
 					lblAmps.Text = "";
@@ -617,7 +617,7 @@ namespace LegoTrainProject
 		private void ButtonColor_Click(object sender, EventArgs e)
 		{
 			Hub hub = (Hub)((object[])((Button)sender).Tag)[0];
-			string port = (String)((object[])((Button)sender).Tag)[1];
+			string port = (string)((object[])((Button)sender).Tag)[1];
 			Color color = (Color)((object[])((Button)sender).Tag)[2];
 			//00=Black 03=Blue 05=Green 09=Red 0A=White FF=No object
 			hub.SetColor(port, color);
@@ -626,7 +626,7 @@ namespace LegoTrainProject
 		private void ButtonOnOff_Click(object sender, EventArgs e)
 		{
 			Hub hub = (Hub)((object[])((Button)sender).Tag)[0];
-			string port = (String)((object[])((Button)sender).Tag)[1];
+			string port = (string)((object[])((Button)sender).Tag)[1];
 			int brightness = (int)((object[])((Button)sender).Tag)[2];
 
 			hub.SetLightBrightness(port, brightness);
@@ -638,7 +638,7 @@ namespace LegoTrainProject
 		private void ButtonActivateSwitch_Click(object sender, EventArgs e)
 		{
 			Hub hub = (Hub)((object[])((Button)sender).Tag)[0];
-			string port = (String)((object[])((Button)sender).Tag)[1];
+			string port = (string)((object[])((Button)sender).Tag)[1];
 			int speed = (int)((object[])((Button)sender).Tag)[2];
 
 			//modified by Tom Cook for 'inverted' function. Mod not necessary here, since it is checked/changed in SetMotorSpeed()
@@ -665,7 +665,7 @@ namespace LegoTrainProject
 		{
 			Hub hub = (Hub)((object[])((TrackBar)sender).Tag)[0];
 			Label label = (Label)((object[])((TrackBar)sender).Tag)[1];
-			string port = (String)((object[])((TrackBar)sender).Tag)[2];
+			string port = (string)((object[])((TrackBar)sender).Tag)[2];
 
 			hub.SetMotorSpeed(port, ((TrackBar)sender).Value);
 
@@ -694,7 +694,7 @@ namespace LegoTrainProject
 		private void ButtonStopTrain_Click(object sender, EventArgs e)
 		{
 			Hub train = (Hub)((object[])((Button)sender).Tag)[0];
-			string port = (String)((object[])((Button)sender).Tag)[1];
+			string port = (string)((object[])((Button)sender).Tag)[1];
 			//modified by Tom Cook to NOT brake
 			//train.Stop(port, true);
 			train.Stop(port, false);
