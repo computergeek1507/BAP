@@ -80,22 +80,7 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DXNET, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\DXNET.5.0.0\lib\net48\DXNET.dll</HintPath>
-    </Reference>
-    <Reference Include="DXNET.XInput, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\DXNET.XInput.5.0.0\lib\net48\DXNET.XInput.dll</HintPath>
-    </Reference>
-    <Reference Include="FastColoredTextBox, Version=2.16.24.0, Culture=neutral, PublicKeyToken=fb8aa12b994ef61b, processorArchitecture=MSIL">
-      <HintPath>packages\FCTB.2.16.24\lib\FastColoredTextBox.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="MQTTnet, Version=4.3.3.952, Culture=neutral, PublicKeyToken=fdb7629f2e364a63, processorArchitecture=MSIL">
-      <HintPath>packages\MQTTnet.4.3.3.952\lib\net48\MQTTnet.dll</HintPath>
-    </Reference>
-    <Reference Include="MQTTnet.Extensions.ManagedClient, Version=4.3.3.952, Culture=neutral, PublicKeyToken=fdb7629f2e364a63, processorArchitecture=MSIL">
-      <HintPath>packages\MQTTnet.Extensions.ManagedClient.4.3.3.952\lib\net48\MQTTnet.Extensions.ManagedClient.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -345,7 +330,6 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -504,7 +488,17 @@
   <ItemGroup>
     <Content Include="BAP.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <PackageReference Include="DXNET.XInput">
+      <Version>5.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="FCTB">
+      <Version>2.16.24</Version>
+    </PackageReference>
+    <PackageReference Include="MQTTnet.Extensions.ManagedClient">
+      <Version>4.3.3.952</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

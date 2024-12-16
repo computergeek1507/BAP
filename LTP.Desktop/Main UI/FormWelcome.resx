@@ -120,6 +120,7 @@
   <data name="richTextBox1.Text" xml:space="preserve">
     <value>Version 1.7 Change Notes
 ----------------------------
+-BuWizz 3 Hub
 -MQTT Hubs - Rocrail/JMRI Commands
 -CMRI Serial Hub
 -DACTA Hub
