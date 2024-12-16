@@ -38,3 +38,9 @@ jobs:
 
     - name: Build app 
       run: msbuild LegoTrainProject.csproj -t:rebuild -verbosity:diag -property:Configuration=$env:Configuration
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: published_$env:Configuration
+        path: bin\$env:Configuration
