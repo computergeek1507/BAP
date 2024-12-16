@@ -32,3 +32,6 @@ jobs:
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v2
+
+    - name: Build app 
+      run: msbuild LegoTrainProject.csproj -t:rebuild -verbosity:diag -property:Configuration=$env:Configuration
