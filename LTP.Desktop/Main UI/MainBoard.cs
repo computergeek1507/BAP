@@ -38,6 +38,8 @@ namespace LegoTrainProject
         private delegate void AddControlToFlowPanelThreadSafeDelegate(FlowLayoutPanel host, Control control, bool addLineBreak);
         private delegate void RefreshTrainEventComboBoxThreadSafeDelegate();
 
+		public static EventHandler OnRedrawHubs;
+
 		// Trains & Program Logics
 		TrainProject currentProject = new TrainProject();
 
@@ -1601,6 +1603,7 @@ namespace LegoTrainProject
 		{
 			SerialHubs dlg = new SerialHubs(currentProject);
 			SerialHubs.OtherHubUpdate += OnNewOtherHubAdded;
+			OnRedrawHubs += dlg.RedrawSerialItems;
 
 			dlg.ShowDialog();
 			return;
@@ -1754,6 +1757,8 @@ namespace LegoTrainProject
 				currentProject.RegisteredTrains.Add(newHub);
 				AddTrainToFlowLayout(newHub);
 			}
+
+			OnRedrawHubs?.Invoke(this, EventArgs.Empty);
 		}
 	}
 }

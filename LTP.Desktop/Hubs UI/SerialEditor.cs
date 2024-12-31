@@ -114,5 +114,10 @@ namespace LegoTrainProject
         {
 
         }
-    }
+
+		internal void RedrawSerialItems(object sender, EventArgs e)
+		{
+			RedrawItems();
+		}
+	}
 }
