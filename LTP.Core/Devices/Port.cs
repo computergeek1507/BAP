@@ -50,6 +50,7 @@ namespace LegoTrainProject
 			BUTTON = 8,
 			PFX_SPEAKER = 9,
 			PFX_LIGHT_CONTROLER = 10,
+			SWITCH_INFINITE = 11,
 		}
 
 		public enum RemoteButtons

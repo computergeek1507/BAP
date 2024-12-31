@@ -16,7 +16,7 @@ namespace LegoTrainProject
 	[Serializable]
 	class CRMIHub : Hub
 	{
-
+		//https://github.com/madleech/ArduinoCMRI/tree/master
 		/*
 		9600 baud
 		no flow control
@@ -34,7 +34,7 @@ namespace LegoTrainProject
 		[NonSerialized]
 		private Timer timer1;
 
-		//modified by Tom Cook for MU function to add TrainProject project to class where need to loop thru all hubs and ports
+		//Added by Scott
 		//public MTC4PUHub(BluetoothLEDevice device, Types type, string comAddress) : base(device, type)
 		public CRMIHub(BluetoothLEDevice device, Types type, TrainProject project, string comAddress) : base(device, type, project)
 		{
@@ -77,7 +77,7 @@ namespace LegoTrainProject
 
 		public override void TryToConnect()
 		{
-			MainBoard.WriteLine("Connecting to DACTA on port " + DeviceId);
+			MainBoard.WriteLine("Connecting to CRMI on port " + DeviceId);
 			//(9600, SERIAL_8N2);
 			_serialPort = new SerialPort(DeviceId, 9600, Parity.None, 8, StopBits.Two);
 			//_serialPort.Handshake = Handshake.None;
@@ -200,6 +200,7 @@ namespace LegoTrainProject
 				case Port.Functions.SWITCH_DOUBLECROSS:
 				case Port.Functions.SWITCH_TRIXBRIX:
 				case Port.Functions.SWITCH_STANDARD:
+				case Port.Functions.SWITCH_INFINITE:
 					{
 						targetPort.TargetSpeed = (left) ? -100 : 100;
 						//SetMotorSpeed(port, targetPort.TargetSpeed);

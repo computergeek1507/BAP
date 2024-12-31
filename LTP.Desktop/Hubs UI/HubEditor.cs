@@ -73,7 +73,8 @@ namespace LegoTrainProject
 					p.Function == Port.Functions.TRAIN_MOTOR ||
 					p.Function == Port.Functions.SWITCH_DOUBLECROSS ||
 					p.Function == Port.Functions.SWITCH_STANDARD ||
-					p.Function == Port.Functions.SWITCH_TRIXBRIX)
+					p.Function == Port.Functions.SWITCH_TRIXBRIX ||
+					p.Function == Port.Functions.SWITCH_INFINITE)
 				{
 					Label labelHeaderMotor = new Label();
 					labelHeaderMotor.Text = $"Invert Direction:";

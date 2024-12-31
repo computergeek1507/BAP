@@ -1152,6 +1152,12 @@ namespace LegoTrainProject
 						timer.Start();
 						break;
 					}
+				case Port.Functions.SWITCH_INFINITE:
+					{
+						targetPort.TargetSpeed = (left) ? -100 : 100;
+						SetMotorSpeed(port, targetPort.TargetSpeed);
+						break;
+					}
 			}
 		}
 

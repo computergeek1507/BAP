@@ -44,7 +44,10 @@ namespace LegoTrainProject
 			{
 				foreach (Port p in h.RegistredPorts)
 				{
-					if (p.Function == Port.Functions.SWITCH_DOUBLECROSS || p.Function == Port.Functions.SWITCH_STANDARD || p.Function == Port.Functions.SWITCH_TRIXBRIX)
+					if (p.Function == Port.Functions.SWITCH_DOUBLECROSS 
+						|| p.Function == Port.Functions.SWITCH_STANDARD 
+						|| p.Function == Port.Functions.SWITCH_TRIXBRIX
+						|| p.Function == Port.Functions.SWITCH_INFINITE)
 					{
 						comboBoxSwitch.Items.Add(new DetectorItem(h, p));
 						if (CurrentSection.IsSwitchPresent(h, p))

@@ -21,6 +21,7 @@ namespace LegoTrainProject
 		MQTTClient _mqttClient;
 
 		//Added by Scott
+		//https://wiki.rocrail.net/doku.php?id=wio:overview-en
 		//public WIOHub(BluetoothLEDevice device, Types type, string comAddress) : base(device, type)
 		public WIOHub(BluetoothLEDevice device, Types type, TrainProject project, string trainID, MQTTClient mqttClient) : base(device, type, project)
 		{
@@ -136,6 +137,7 @@ namespace LegoTrainProject
 				case Port.Functions.SWITCH_DOUBLECROSS:
 				case Port.Functions.SWITCH_TRIXBRIX:
 				case Port.Functions.SWITCH_STANDARD:
+				case Port.Functions.SWITCH_INFINITE:
 					{
 						targetPort.TargetSpeed = (left) ? -100 : 100;
 						//SetMotorSpeed(port, targetPort.TargetSpeed);

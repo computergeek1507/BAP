@@ -119,6 +119,7 @@ namespace LegoTrainProject
 					case Port.Functions.SWITCH_DOUBLECROSS:
 					case Port.Functions.SWITCH_STANDARD:
 					case Port.Functions.SWITCH_TRIXBRIX:
+					case Port.Functions.SWITCH_INFINITE:
 						{
 							width += 70;
 
@@ -172,7 +173,27 @@ namespace LegoTrainProject
 							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, pb, false);
 							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, labelSpeed, false);
 							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, buttonLeft, false);
-							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, buttonRight, true);
+							MainBoard.AddControlToFlowPanel(flowLayoutPanel1, buttonRight, Port.Functions.SWITCH_INFINITE != p.Function);
+							if (Port.Functions.SWITCH_INFINITE == p.Function)
+							{
+								Button buttonStop = new Button();
+								buttonStop.Text = "Stop";
+								buttonStop.Tag = new object[] { Hub, p.Id }; ;
+								buttonStop.Click += ButtonStopTrain_Click;
+								buttonStop.Width = 50;
+								//added by Tom Cook to pull up Stop button a little
+								//buttonStop.Margin = new Padding(0, 0, 0, 0);
+								buttonRight.Padding = new Padding(10, 0, 0, 0);
+								//added by Tom Cook for MU function
+								buttonStop.BackColor = p.MUbackcolor;
+								if (p.MUbackcolor == Color.Black
+								 || p.MUbackcolor == Color.Blue
+								 || p.MUbackcolor == Color.Purple
+								 || p.MUbackcolor == Color.Green
+								 || p.MUbackcolor == Color.Red
+								 ) buttonStop.ForeColor = Color.White;
+								MainBoard.AddControlToFlowPanel(flowLayoutPanel1, buttonStop, true);
+							}
 
 							break;
 						}
@@ -507,7 +528,9 @@ namespace LegoTrainProject
 							}
 						}
 						else if (p.Function == Port.Functions.SWITCH_TRIXBRIX || 
-							p.Function == Port.Functions.SWITCH_STANDARD || p.Function == Port.Functions.SWITCH_DOUBLECROSS)
+							p.Function == Port.Functions.SWITCH_STANDARD ||
+							p.Function == Port.Functions.SWITCH_DOUBLECROSS ||
+							p.Function == Port.Functions.SWITCH_INFINITE)
 						{
 							//modified by Tom Cook for 'inverted' function. Mod not necessary, since invert check/changed in SetMotorSpeed()
 							p.label.Text = $"- Port {p.Id} -" + Environment.NewLine + "Pos: " + ((p.TargetSpeed == 0) ? "Unknown" : (p.TargetSpeed < 0) ? "Left" : "Right");

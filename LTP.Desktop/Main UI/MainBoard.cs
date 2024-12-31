@@ -141,14 +141,14 @@ namespace LegoTrainProject
 				//WriteLine(" - WeDo 2.0 & Boost Hubs");
 				//WriteLine(" - SBrick & BuWizz Hubs");
 				//WriteLine(" - EV3 Hubs (Connect from the Device menu)");
-				WriteLine(" - Powered Up Hubs & Remotes   - WeDo 2.0 & Boost Hubs   - SBrick & BuWizz Hubs   - EV3 Hubs (Connect from the Device menu)");
+				WriteLine(" - Powered Up Hubs & Remotes   - WeDo 2.0 & Boost Hubs   - SBrick & BuWizz Hubs   - EV3 Hubs");
 
 				BleWatcher.Start();
 				await TryToConnect();
 			}
             catch(Exception ex)
             {
-                MainBoard.WriteLine("FATAL ERROR: We could not initialize the bluetooth watcher", Color.Red);
+                MainBoard.WriteLine("FATAL ERROR: We could not initialize the Bluetooth watcher", Color.Red);
                 MainBoard.WriteLine("Exception: " + ex.Message, Color.Red);
             }
         }
@@ -1325,7 +1325,8 @@ namespace LegoTrainProject
 									// If it is a Switch, we set it up on the left
 									if (train.RegistredPorts[j].Function == Port.Functions.SWITCH_DOUBLECROSS ||
 										train.RegistredPorts[j].Function == Port.Functions.SWITCH_STANDARD ||
-										train.RegistredPorts[j].Function == Port.Functions.SWITCH_TRIXBRIX)
+										train.RegistredPorts[j].Function == Port.Functions.SWITCH_TRIXBRIX||
+										train.RegistredPorts[j].Function == Port.Functions.SWITCH_INFINITE)
 										train.ActivateSwitchToLeft(train.RegistredPorts[j].Id);
 									else
 										train.Stop(train.RegistredPorts[j].Id);
