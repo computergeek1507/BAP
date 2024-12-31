@@ -48,7 +48,6 @@ namespace LegoTrainProject
 			Port portB = new Port("B", 1, true);
 			Port portC = new Port("C", 2, true);
 			Port portD = new Port("D", 3, true);
-
 			Port portE = new Port("E", 4, true);
 			Port portF = new Port("F", 5, true);
 			Port portG = new Port("G", 6, true);
@@ -58,11 +57,19 @@ namespace LegoTrainProject
 			RegistredPorts.Add(portB);
 			RegistredPorts.Add(portC);
 			RegistredPorts.Add(portD);
-
 			RegistredPorts.Add(portE);
 			RegistredPorts.Add(portF);
 			RegistredPorts.Add(portG);
 			RegistredPorts.Add(portH);
+
+			portA.Function = Port.Functions.MOTOR;
+			portB.Function = Port.Functions.MOTOR;
+			portC.Function = Port.Functions.MOTOR;
+			portD.Function = Port.Functions.MOTOR;
+			portE.Function = Port.Functions.MOTOR;
+			portF.Function = Port.Functions.MOTOR;
+			portG.Function = Port.Functions.MOTOR;
+			portH.Function = Port.Functions.MOTOR;
 		}
 
 		public override void TryToConnect()
@@ -157,8 +164,8 @@ namespace LegoTrainProject
 
 			OnDataUpdated();
 
-            int outputPort = char.ToUpper(port[0]) - 'A';
-            //int index = portObj.(port == "A") ? 1 : (port == "B") ? 2 : (port == "C") ? 3 : 4;
+			int outputPort = char.ToUpper(port[0]) - 'A';
+			//int outputPort = (port == "A") ? 0 : (port == "B") ? 1 : (port == "C") ? 2 : 3;
 			if (speed == 0)
 			{
 				SendOnOff(false, outputPort);
@@ -166,7 +173,7 @@ namespace LegoTrainProject
 			}
 			SendOnOff(true, outputPort);
 			SendDirection(speed > 0, outputPort);
-			SendLevel((ushort)Math.Abs(speed), outputPort);
+			SendLevel(SpeedToLevel(Math.Abs(speed)), outputPort);
 		}
 
 		public override void SetLightBrightness(string port, int brightness)
@@ -186,9 +193,9 @@ namespace LegoTrainProject
 		}
 
 		/// <summary>
-		/// Write data to the Seril Port.
+		/// Write data to the Serial Port.
 		/// </summary>
-		/// <param name="data">Byte array of data to send to the Seril Port.</param>
+		/// <param name="data">Byte array of data to send to the Serial Port.</param>
 		/// <returns></returns>
 		public Task WriteAsync(byte[] data)
 		{
@@ -218,6 +225,7 @@ namespace LegoTrainProject
 
 		public Task SendLevel(ushort level, int port)
 		{
+			//0-7
 			byte buf;
 			byte buf2;
 			//set byte for Power Level
@@ -298,6 +306,14 @@ namespace LegoTrainProject
 			//readData();
 			byte[] kcommand = new byte[1] { 2 };
 			WriteAsync(kcommand);
+		}
+
+		private ushort SpeedToLevel(int speed)
+		{
+			//int level = 0;
+			int level = (int)Math.Ceiling((double)speed / 13);
+			if (level > 7) level = 7;
+			return (ushort)level;
 		}
 	}
 }
