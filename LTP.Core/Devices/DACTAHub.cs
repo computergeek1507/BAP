@@ -49,20 +49,20 @@ namespace LegoTrainProject
 			Port portC = new Port("C", 2, true);
 			Port portD = new Port("D", 3, true);
 
-			Port port1 = new Port("One", 4, true);
-			Port port2 = new Port("Two", 5, true);
-			Port port3 = new Port("Three", 6, true);
-			Port port4 = new Port("Four", 7, true);
+			Port portE = new Port("E", 4, true);
+			Port portF = new Port("F", 5, true);
+			Port portG = new Port("G", 6, true);
+			Port portH = new Port("H", 7, true);
 
 			RegistredPorts.Add(portA);
 			RegistredPorts.Add(portB);
 			RegistredPorts.Add(portC);
 			RegistredPorts.Add(portD);
 
-			RegistredPorts.Add(port1);
-			RegistredPorts.Add(port2);
-			RegistredPorts.Add(port3);
-			RegistredPorts.Add(port4);
+			RegistredPorts.Add(portE);
+			RegistredPorts.Add(portF);
+			RegistredPorts.Add(portG);
+			RegistredPorts.Add(portH);
 		}
 
 		public override void TryToConnect()
@@ -123,7 +123,7 @@ namespace LegoTrainProject
 			}
 			if (_serialPort != null)
 			{
-				_serialPort.WriteLine("p\0###Do you byte, when I knock?$$$");
+				//_serialPort.WriteLine("p\0###Do you byte, when I knock?$$$");
 				_serialPort.DataReceived -= SerialPortDataReceived;
 				_serialPort.Close();
 				_serialPort = null;
@@ -157,7 +157,8 @@ namespace LegoTrainProject
 
 			OnDataUpdated();
 
-			int outputPort = (port == "A") ? 1 : (port == "B") ? 2 : (port == "C") ? 3 : 4;
+            int outputPort = char.ToUpper(port[0]) - 'A';
+            //int index = portObj.(port == "A") ? 1 : (port == "B") ? 2 : (port == "C") ? 3 : 4;
 			if (speed == 0)
 			{
 				SendOnOff(false, outputPort);

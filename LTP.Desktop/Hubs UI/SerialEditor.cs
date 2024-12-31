@@ -57,11 +57,6 @@ namespace LegoTrainProject
 			RedrawItems();
 		}
 
-		private void toolStripButton1_Click(object sender, EventArgs e)
-        {
-
-        }
-
 		private void toolStripButtonEV3_Click(object sender, EventArgs e)
 		{
 			ListSelection dlg = new ListSelection("Select Serial Port", SerialPort.GetPortNames());
@@ -103,5 +98,21 @@ namespace LegoTrainProject
 			}
 			RedrawItems();
 		}
-	}
+
+        private void listBoxSerialHubs_SelectedIndexChanged(object sender, EventArgs e)
+        {
+			if (listBoxSerialHubs.Items.Count == 0)
+			{
+                toolStripButtonDelete.Enabled = false;
+
+                return;
+			}
+            toolStripButtonDelete.Enabled = true;
+        }
+
+        private void toolStripButtonDelete_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
 }
