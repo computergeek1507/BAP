@@ -44,8 +44,16 @@ jobs:
       with:
         name: files_${{ matrix.configuration }}
         path: 'bin\**'
+        
+    - name: Zip Files
+      if: github.ref == 'refs/heads/master' && matrix.configuration == 'Release'
+    - uses: vimtor/action-zip@v1.2
+      with:
+        files: dist/*.*
+        recursive: false
+        dest: LegoTrainProject.zip
 
-    - name: Create prerelease
+    - name: Create Prerelease
       if: github.ref == 'refs/heads/master' && matrix.configuration == 'Release'
       uses: marvinpinto/action-automatic-releases@latest
       with:
@@ -54,4 +62,4 @@ jobs:
         automatic_release_tag: "ci_win"
         title: "${{ steps.version.outputs.version }}"
         files: |        
-          bin/*.*
+          ${{ github.workspace }}/LegoTrainProject.zip
