@@ -49,7 +49,7 @@ jobs:
       if: github.ref == 'refs/heads/master' && matrix.configuration == 'Release'
       uses: vimtor/action-zip@v1.2
       with:
-        files: dist/*.*
+        files: bin/*.*
         recursive: false
         dest: LegoTrainProject.zip
 
@@ -62,4 +62,4 @@ jobs:
         automatic_release_tag: "ci_win"
         title: "${{ steps.version.outputs.version }}"
         files: |        
-          ${{ github.workspace }}/LegoTrainProject.zip
+          LegoTrainProject.zip
