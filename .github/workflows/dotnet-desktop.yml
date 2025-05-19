@@ -50,7 +50,7 @@ jobs:
       uses: vimtor/action-zip@v1.2
       with:
         files: bin/
-        recursive: false
+        recursive: true
         dest: LegoTrainProject.zip
 
     - name: Create Prerelease
