@@ -49,7 +49,7 @@ jobs:
       if: github.ref == 'refs/heads/master' && matrix.configuration == 'Release'
       uses: vimtor/action-zip@v1.2
       with:
-        files: bin/*.*
+        files: bin/
         recursive: false
         dest: LegoTrainProject.zip
 
