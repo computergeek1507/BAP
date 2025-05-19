@@ -46,7 +46,7 @@ jobs:
         path: 'bin\**'
 
     - name: Create prerelease
-      if: github.ref == 'refs/heads/master' && matrix.item == 'Release'
+      if: github.ref == 'refs/heads/master' && matrix.configuration == 'Release'
       uses: marvinpinto/action-automatic-releases@latest
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -54,4 +54,4 @@ jobs:
         automatic_release_tag: "ci_win"
         title: "${{ steps.version.outputs.version }}"
         files: |        
-          ./res/installer/output/*.exe
+          bin/*.*
