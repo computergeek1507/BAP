@@ -69,7 +69,7 @@ namespace LegoTrainProject
 		public static bool showBLEDebug = false;
 		//modified by Tom Cook for version change v1.6
 		//modified by Scott Hanson for version change v1.7
-		public string Version = "v1.7 - 12/16/24";
+		public string Version = "v1.7";
 		/// <summary>
 		/// Constructor
 		/// </summary>
