@@ -11,8 +11,8 @@ using static LegoTrainProject.Port;
 
 namespace LegoTrainProject
 {
-    [Serializable]
-    public class BuWizz3Hub : BuWizzHub
+	[Serializable]
+	public class BuWizz3Hub : BuWizzHub
 	{
 		//Added by Scott Hanson
 		//modified by Tom Cook for MU function to add TrainProject project to class where need to loop thru all hubs and ports
@@ -62,12 +62,12 @@ namespace LegoTrainProject
 
 			OnDataUpdated();
 
-			byte[] data = new byte[8];
+			byte[] data = new byte[9];
 			data[0] = 0x30;
 			foreach (Port p in RegistredPorts)
 				data[RegistredPorts.IndexOf(p) + 1] = (byte)p.Speed;
 			data[7] = 0;
-
+			data[8] = 0;
 			WriteMessage(data, false);
 		}
 
@@ -87,11 +87,12 @@ namespace LegoTrainProject
 
 			OnDataUpdated();
 
-			byte[] data = new byte[8];
+			byte[] data = new byte[9];
 			data[0] = 0x30;
 			foreach (Port p in RegistredPorts)
 				data[RegistredPorts.IndexOf(p) + 1] = (byte)p.Speed;
 			data[7] = 0;
+			data[8] = 0;
 
 			WriteMessage(data, false);
 		}
