@@ -42,7 +42,18 @@ namespace LegoTrainProject
 
 		public override void SetLEDColor(Colors color)
 		{
-			// Nothing to do
+			var cc = EnumtoColor(color);
+			
+			byte[] data = new byte[17];
+			data[0] = 0x36;
+			data[1] = data[4] = data[7] = data[10] = cc.R;
+			data[2] = data[5] = data[8] = data[11] = cc.G;
+			data[3] = data[6] = data[9] = data[12] = cc.B;
+			data[13] = 0xFF;
+			data[14] = 0xFF;
+			data[15] = 0xFF;
+			data[16] = 0xFF;
+			WriteMessage(data, false);
 		}
 
 
@@ -168,6 +179,15 @@ namespace LegoTrainProject
 			{
 				MainBoard.WriteLine("FATAL BuzHub3: Something went wrong while reading messages!" + ex.Message, Color.DarkRed);
 			}
+		}
+	
+		private Color EnumtoColor(Colors color)
+		{
+			if (Colors.LBLUE == color) 
+			{
+				return Color.FromName("LightBlue");
+			}
+			return Color.FromName(color.ToString());
 		}
 	}
 }
