@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -57,15 +56,9 @@ namespace LegoTrainProject.LTP.Core.Devices
 			{
 				if (File.Exists(path))
 				{
-					IFormatter formatter = new BinaryFormatter();
-					using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
-					{
-						ConnectionLimitationSettings cls = (ConnectionLimitationSettings)formatter.Deserialize(stream);
-						stream.Close();
-
-						MainBoard.WriteLine("Global connection preferences loaded!", System.Drawing.Color.Green);
-						return cls;
-					}
+					ConnectionLimitationSettings cls = ProjectSerializer.Load<ConnectionLimitationSettings>(path, out _);
+					MainBoard.WriteLine("Global connection preferences loaded!", System.Drawing.Color.Green);
+					return cls;
 				}
 
 				MainBoard.WriteLine("No global connection preferences file exist. Creating default ones.");
@@ -83,12 +76,7 @@ namespace LegoTrainProject.LTP.Core.Devices
 		{
 			try
 			{
-				IFormatter formatter = new BinaryFormatter();
-				using (Stream stream = new FileStream(path, FileMode.Create, FileAccess.Write))
-				{
-					formatter.Serialize(stream, this);
-					stream.Close();
-				}
+				ProjectSerializer.Save(this, path);
 			}
 			catch (Exception ex)
 			{

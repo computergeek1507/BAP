@@ -7,7 +7,6 @@ using System.Timers;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Storage.Streams;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Linq;
 using System.Threading;
 using static LegoTrainProject.Port;
@@ -1518,27 +1517,5 @@ namespace LegoTrainProject
             return null;
         }
 
-        internal static void SaveAll(List<Hub> registeredTrains)
-        {
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new FileStream("./trainAll.txt", FileMode.Create, FileAccess.Write);
-            formatter.Serialize(stream, registeredTrains);
-            stream.Close();
-        }
-
-        internal static List<Hub> LoadAll(string path)
-        {
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Read);
-            List<Hub> trains = null;
-
-            if (stream.Length > 0)
-                trains = (List<Hub>)formatter.Deserialize(stream);
-
-            stream.Close();
-            trains = (trains == null) ? new List<Hub>() : trains;
-
-            return trains;
-        }
     }
 }

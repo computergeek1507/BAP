@@ -160,7 +160,9 @@ namespace LegoTrainProject
 	}
 
 	[Serializable]
-	public class Sections : IEnumerable<Section>
+	// Not IEnumerable<Section> on purpose: JSON would then save it as a bare array and
+	// lose Paths. foreach still works through the public GetEnumerator() below.
+	public class Sections
 	{
 		/// <summary>
 		/// Allow to let UI know when things have changed!
@@ -540,11 +542,6 @@ namespace LegoTrainProject
 		public IEnumerator<Section> GetEnumerator()
 		{
 			return sections.GetEnumerator();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
 		}
 
 		public Section this[int index]

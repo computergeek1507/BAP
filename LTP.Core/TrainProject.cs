@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,21 +28,19 @@ namespace LegoTrainProject
         {
             try
             {
-                IFormatter formatter = new BinaryFormatter();
-                using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+                TrainProject project = ProjectSerializer.Load<TrainProject>(path, out bool wasLegacyFormat);
+                project.Path = path;
+
+                if (wasLegacyFormat)
+                    MainBoard.WriteLine("Opened a project from an older BAP version. It will be saved in the new format next time you save.", System.Drawing.Color.Orange);
+
+                // Make sure we clear any event serialized
+                foreach (Hub train in project.RegisteredTrains)
                 {
-                    TrainProject project = (TrainProject)formatter.Deserialize(stream);
-                    project.Path = path;
-                    stream.Close();
-
-                    // Make sure we clear any event serialized
-                    foreach (Hub train in project.RegisteredTrains)
-                    {
-                        train.CleanAllEvents();
-                    }
-
-                    return project;
+                    train.CleanAllEvents();
                 }
+
+                return project;
             }
             catch(Exception ex)
             {
@@ -78,13 +74,8 @@ namespace LegoTrainProject
         {
             try
             {
-                IFormatter formatter = new BinaryFormatter();
-                using (Stream stream = new FileStream(path, FileMode.Create, FileAccess.Write))
-                {
-                    formatter.Serialize(stream, this);
-                    stream.Close();
-                    Path = path;
-                }
+                ProjectSerializer.Save(this, path);
+                Path = path;
             }
             catch (Exception ex)
             {
