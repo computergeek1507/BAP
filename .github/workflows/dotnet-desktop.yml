@@ -37,7 +37,7 @@ jobs:
       run: msbuild LegoTrainProject.csproj -t:restore -p:RestorePackagesConfig=true
 
     - name: Build app 
-      run: msbuild LegoTrainProject.csproj -t:rebuild -verbosity:diag -property:Configuration=$env:Configuration
+      run: msbuild LegoTrainProject.csproj -t:rebuild -verbosity:diag -property:Configuration=${{ matrix.configuration }}
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
