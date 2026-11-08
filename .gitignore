@@ -48,3 +48,6 @@ Temporary Items
 .vs
 bin
 obj
+
+# Inno Setup output
+installer/Output/

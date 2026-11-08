@@ -37,7 +37,7 @@ jobs:
       run: msbuild LegoTrainProject.csproj -t:restore -p:RestorePackagesConfig=true
 
     - name: Build app 
-      run: msbuild LegoTrainProject.csproj -t:rebuild -verbosity:diag -property:Configuration=$env:Configuration
+      run: msbuild LegoTrainProject.csproj -t:rebuild -verbosity:diag -property:Configuration=${{ matrix.configuration }}
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
@@ -53,6 +53,30 @@ jobs:
         recursive: true
         dest: LegoTrainProject.zip
 
+    - name: Read version
+      id: version
+      if: matrix.configuration == 'Release'
+      shell: pwsh
+      run: |
+        $m = Select-String -Path Properties\AssemblyInfo.cs -Pattern 'AssemblyVersion\("([0-9.]+)"\)'
+        "version=$($m.Matches[0].Groups[1].Value)" >> $env:GITHUB_OUTPUT
+
+    - name: Build installer
+      if: matrix.configuration == 'Release'
+      shell: pwsh
+      run: |
+        & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" `
+          "/DMyAppVersion=${{ steps.version.outputs.version }}" `
+          "/DBuildDir=..\bin\Release" `
+          installer\BAP.iss
+
+    - name: Upload Installer
+      if: matrix.configuration == 'Release'
+      uses: actions/upload-artifact@v4
+      with:
+        name: BAP_Setup
+        path: installer\Output\*.exe
+
     - name: Create Prerelease
       if: github.ref == 'refs/heads/master' && matrix.configuration == 'Release'
       uses: marvinpinto/action-automatic-releases@latest
@@ -60,6 +84,7 @@ jobs:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         prerelease: true
         automatic_release_tag: "ci_win"
-        title: "${{ steps.version.outputs.version }}"
-        files: |        
+        title: "BAP ${{ steps.version.outputs.version }}"
+        files: |
           LegoTrainProject.zip
+          installer/Output/*.exe
