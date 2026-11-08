@@ -88,6 +88,19 @@ namespace LegoTrainProject
 		/// </summary>
 		internal bool NeedsTwoSectionReleased = false;
 
+		/// <summary>
+		/// Where this section is drawn on the track map (map units, not pixels).
+		/// OptionalField: projects saved before the map existed don't have these.
+		/// </summary>
+		[System.Runtime.Serialization.OptionalField]
+		public bool MapPlaced;
+
+		[System.Runtime.Serialization.OptionalField]
+		public float MapX;
+
+		[System.Runtime.Serialization.OptionalField]
+		public float MapY;
+
 		internal bool IsDetectorPresent(Hub h, Port p)
 		{
 			if (Detector == null)

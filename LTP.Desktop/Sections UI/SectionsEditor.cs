@@ -15,11 +15,13 @@ namespace LegoTrainProject
 	public partial class SectionsEditor : UserControl
 	{
 		private TrainProject Project;
+		private SectionMapForm mapForm;
 
 		public SectionsEditor(TrainProject project)
 		{
 			Project = project;
 			InitializeComponent();
+			AddMapButton();
 
 			RecreateTrainsUI();
 			RecreateSectionsUI();
@@ -43,8 +45,34 @@ namespace LegoTrainProject
 			}
 		}
 
+		private void AddMapButton()
+		{
+			var mapButton = new ToolStripButton("Track Map", Properties.Resources.icons8_map_pinpoint_96)
+			{
+				ImageTransparentColor = Color.Magenta,
+				ToolTipText = "Show a live map of sections and trains"
+			};
+			mapButton.Click += (s, e) =>
+			{
+				if (mapForm == null || mapForm.IsDisposed)
+				{
+					mapForm = new SectionMapForm(Project);
+					mapForm.Show(FindForm());
+				}
+				else
+					mapForm.Activate();
+			};
+			toolStrip.Items.Add(mapButton);
+
+			// The map belongs to this project; close it when this editor goes away (e.g. project reloaded)
+			Disposed += (s, e) => mapForm?.Close();
+		}
+
 		public void RecreateSectionsUI()
 		{
+			if (mapForm != null && !mapForm.IsDisposed)
+				mapForm.SectionsChanged();
+
 			flowLayoutPanelSections.Controls.Clear();
 			int totalSections = Project.Sections.GetAll().Count;
 
