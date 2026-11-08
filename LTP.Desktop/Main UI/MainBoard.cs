@@ -56,7 +56,7 @@ namespace LegoTrainProject
 			ScanningMode = BluetoothLEScanningMode.Active
         };
 
-		//private Controller m_playerControl;
+		private GamepadController m_gamepad;
 
 		private MQTTClient m_mqtt = new MQTTClient();
 
@@ -158,16 +158,17 @@ namespace LegoTrainProject
 		/// <summary>
 		/// Setup Controller
 		/// </summary>
-		private async void SetupController()
+		private void SetupController()
 		{
 			try
 			{
-
+				// Xbox / XInput controller: same emergency stop as the space bar
+				m_gamepad = new GamepadController(() => currentProject.RegisteredTrains, () => toolStripButtonAllTrains_Click(null, null));
+				m_gamepad.Start();
 			}
 			catch (Exception ex)
 			{
-				//MainBoard.WriteLine("FATAL ERROR: We could not initialize the bluetooth watcher", Color.Red);
-				//MainBoard.WriteLine("Exception: " + ex.Message, Color.Red);
+				MainBoard.WriteLine("Could not start controller support: " + ex.Message, Color.Orange);
 			}
 		}
 
@@ -1120,6 +1121,7 @@ namespace LegoTrainProject
 
         private void MainBoard_Disposed(object sender, EventArgs e)
         {
+            m_gamepad?.Dispose();
             Debug.WriteLine("Disposing of all devices");
             foreach (Hub t in currentProject.RegisteredTrains)
                 t.Dispose();

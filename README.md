@@ -5,10 +5,26 @@
 * BuWizz3 Hub 
 * MQTT Hubs - Rocrail/JMRI Commands
 * CMRI Serial Hub
+* Xbox controller support (see below)
   
 #### TODO
 * PU Light to PF IR support.
-* Xbox controller support.
+
+### Xbox Controller
+Any Xbox 360, One or Series controller works, wired, on the Xbox Wireless Adapter, or over Bluetooth. Plug it in or pair it any time; BAP picks it up automatically and logs it in the console. Only connected hubs with a `TRAIN_MOTOR` port can be driven.
+
+| Button | Action |
+|---|---|
+| LB / RB | Select previous / next train |
+| D-pad Up / Down | Speed up / slow down by 10 |
+| Left stick up / down | Throttle while held (push further to change faster); speed stays when released |
+| B | Stop selected train |
+| Y | Reverse selected train |
+| X | Stop and select next train |
+| Back / View | **Emergency stop all trains** (same as the space bar) |
+| Start / Menu | Show the button mapping in the console |
+
+PlayStation and Switch controllers are not natively supported, but work through Steam Input or [DS4Windows](https://ds4-windows.com/).
 
 ## Version 1.6 Change Notes
 * Changed tracking of Bluetooth devices by address and advertising to eliminate tracking duplicates
