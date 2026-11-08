@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Runtime.CompilerServices;
+using LegoTrainProject.LTP.Core.Devices;
 using Xunit;
 
 namespace LegoTrainProject.Tests
