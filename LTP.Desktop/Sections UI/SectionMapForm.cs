@@ -223,6 +223,8 @@ namespace LegoTrainProject
 			BackColor = Color.White;
 		}
 
+		[System.ComponentModel.Browsable(false)]
+		[System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
 		public Hub HighlightTrain
 		{
 			get => highlightTrain;
