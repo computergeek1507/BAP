@@ -140,6 +140,7 @@
     <Compile Include="LTP.Desktop\Main UI\ConnectionLimit.Designer.cs">
       <DependentUpon>ConnectionLimit.cs</DependentUpon>
     </Compile>
+    <Compile Include="LTP.Desktop\Main UI\GamepadController.cs" />
     <Compile Include="LTP.Desktop\Main UI\FormWelcome.cs">
       <SubType>Form</SubType>
     </Compile>
