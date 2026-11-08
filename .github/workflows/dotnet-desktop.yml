@@ -34,6 +34,9 @@ jobs:
       with:
         dotnet-version: 10.0.x
 
+    - name: Run tests
+      run: dotnet test Tests\BAP.Tests.csproj -c ${{ matrix.configuration }}
+
     # Self-contained: users don't need a .NET runtime installed
     - name: Build app
       run: dotnet publish LegoTrainProject.csproj -c ${{ matrix.configuration }} -r win-x64 --self-contained true -o out\${{ matrix.configuration }}

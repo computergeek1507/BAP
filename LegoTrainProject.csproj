@@ -31,8 +31,9 @@
     <!-- Stale copies on disk that were never part of the build -->
     <Compile Remove="LTP.Core\Sections - BeforeFix.cs" />
     <Compile Remove="LTP.Desktop\Main UI\FormCodeEditor.Designer_TC.cs" />
-    <Compile Remove="publish\**;BAP_Setup\**;installer\**" />
-    <None Remove="publish\**;BAP_Setup\**;installer\**" />
+    <Compile Remove="publish\**;BAP_Setup\**;installer\**;Tests\**" />
+    <None Remove="publish\**;BAP_Setup\**;installer\**;Tests\**" />
+    <EmbeddedResource Remove="Tests\**" />
   </ItemGroup>
 
   <ItemGroup>
