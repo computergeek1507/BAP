@@ -101,6 +101,12 @@ namespace LegoTrainProject
 		[System.Runtime.Serialization.OptionalField]
 		public float MapY;
 
+		/// <summary>
+		/// Real track shape for the map, as x,y pairs in map units (set by the BlueBrick import)
+		/// </summary>
+		[System.Runtime.Serialization.OptionalField]
+		public float[] MapTrack;
+
 		internal bool IsDetectorPresent(Hub h, Port p)
 		{
 			if (Detector == null)
@@ -400,7 +406,8 @@ namespace LegoTrainProject
 			OnDataUpdated();
 
 			// Will we have to slow down ahead of us?
-			if (nextSection.CountForwardSections() > 1 && nextNextSectionId != -1 && !nextSection.NeedsTwoSectionReleased)
+			// (a section can have a right branch before its switch hub is assigned, e.g. right after a layout import)
+			if (nextSection.CountForwardSections() > 1 && nextSection.Switch1Hub != null && nextNextSectionId != -1 && !nextSection.NeedsTwoSectionReleased)
 			{
 				if ((!nextSection.Switch1Hub.IsSwitchOnTheLeft(nextSection.Switch1Port) && (nextSection.LeftSection == sections[nextNextSectionId])) ||
 					(nextSection.Switch1Hub.IsSwitchOnTheLeft(nextSection.Switch1Port) && (nextSection.RightSection == sections[nextNextSectionId])))

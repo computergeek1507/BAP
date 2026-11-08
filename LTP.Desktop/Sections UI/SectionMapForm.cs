@@ -117,7 +117,7 @@ namespace LegoTrainProject
 	/// </summary>
 	internal static class MapLayout
 	{
-		public const float Width = 1000, Height = 700;
+		public const float Width = MapLayoutSize.Width, Height = MapLayoutSize.Height;
 
 		public static void AutoLayout(List<Section> sections, bool onlyUnplaced)
 		{
@@ -243,6 +243,13 @@ namespace LegoTrainProject
 				minY = Math.Min(minY, all.Min(s => s.MapY) - BlockH);
 				maxX = Math.Max(maxX, all.Max(s => s.MapX) + BlockW);
 				maxY = Math.Max(maxY, all.Max(s => s.MapY) + BlockH);
+
+				foreach (Section s in all.Where(s => s.MapTrack != null))
+					for (int i = 0; i + 1 < s.MapTrack.Length; i += 2)
+					{
+						minX = Math.Min(minX, s.MapTrack[i] - 10); maxX = Math.Max(maxX, s.MapTrack[i] + 10);
+						minY = Math.Min(minY, s.MapTrack[i + 1] - 10); maxY = Math.Max(maxY, s.MapTrack[i + 1] + 10);
+					}
 			}
 
 			const int margin = 20, legend = 34;
@@ -296,6 +303,25 @@ namespace LegoTrainProject
 				}
 			}
 
+			// Real track shapes (from a BlueBrick import), coloured by section state
+			foreach (Section s in sections.Where(x => x.MapPlaced && x.MapTrack != null && x.MapTrack.Length >= 4))
+			{
+				var pts = new PointF[s.MapTrack.Length / 2];
+				for (int i = 0; i < pts.Length; i++)
+					pts[i] = ToScreen(s.MapTrack[2 * i], s.MapTrack[2 * i + 1]);
+
+				Color c = StateColor(s, running, out _);
+				using (var under = new Pen(Color.FromArgb(225, 225, 225), Math.Max(4f, 9f * scale)) { LineJoin = LineJoin.Round, StartCap = LineCap.Round, EndCap = LineCap.Round })
+				using (var pen = new Pen(c, Math.Max(2.5f, 5f * scale)) { LineJoin = LineJoin.Round, StartCap = LineCap.Round, EndCap = LineCap.Round })
+				{
+					g.DrawLines(under, pts);
+					g.DrawLines(pen, pts);
+				}
+				if (pathSteps.ContainsKey(s))
+					using (var pen = new Pen(Color.FromArgb(120, PathColor), Math.Max(6f, 13f * scale)) { LineJoin = LineJoin.Round })
+						g.DrawLines(pen, pts);
+			}
+
 			// Links first, so blocks are drawn on top
 			foreach (Section s in sections.Where(x => x.MapPlaced))
 			{
@@ -311,23 +337,7 @@ namespace LegoTrainProject
 				{
 					RectangleF r = BlockRect(s);
 
-					Color state;
-					string detail;
-					if (s.CurrentHub != null)
-					{
-						state = OccupiedColor;
-						detail = s.CurrentHub.Name;
-					}
-					else if (s.ReservedBy != null || s.IsBeingCleared)
-					{
-						state = ReservedColor;
-						detail = s.ReservedBy != null ? "reserved: " + s.ReservedBy.Name : "clearing";
-					}
-					else
-					{
-						state = running ? FreeColor : IdleColor;
-						detail = running ? "free" : (s.Detector == null ? "no sensor" : "");
-					}
+					Color state = StateColor(s, running, out string detail);
 
 					using (GraphicsPath gp = RoundedRect(r, 8 * scale))
 					using (var fill = new SolidBrush(Color.FromArgb(40, state)))
@@ -363,6 +373,30 @@ namespace LegoTrainProject
 			DrawLegend(g, running);
 		}
 
+		private static Color StateColor(Section s, bool running, out string detail)
+		{
+			if (s.CurrentHub != null)
+			{
+				detail = s.CurrentHub.Name;
+				return OccupiedColor;
+			}
+			if (s.ReservedBy != null || s.IsBeingCleared)
+			{
+				detail = s.ReservedBy != null ? "reserved: " + s.ReservedBy.Name : "clearing";
+				return ReservedColor;
+			}
+
+			if (running)
+				detail = "free";
+			else if (s.Detector == null)
+				detail = "no sensor";
+			else if (s.RightSection != null && s.Switch == null)
+				detail = "no switch set";
+			else
+				detail = "";
+			return running ? FreeColor : IdleColor;
+		}
+
 		private bool OnPath(Section from, Section to)
 		{
 			int[] ids = highlightTrain?.CurrentPath?.Sections;
@@ -396,6 +430,10 @@ namespace LegoTrainProject
 		private void DrawLink(Graphics g, Section from, Section to, bool dashed, bool active, bool onPath)
 		{
 			if (to == null || !to.MapPlaced)
+				return;
+
+			// With real track drawn, plain continuations are obvious; only show arrows at switches
+			if (from.MapTrack != null && to.MapTrack != null && from.RightSection == null && !onPath)
 				return;
 
 			RectangleF a = BlockRect(from), b = BlockRect(to);
