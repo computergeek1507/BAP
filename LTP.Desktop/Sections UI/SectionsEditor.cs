@@ -15,11 +15,13 @@ namespace LegoTrainProject
 	public partial class SectionsEditor : UserControl
 	{
 		private TrainProject Project;
+		private SectionMapForm mapForm;
 
 		public SectionsEditor(TrainProject project)
 		{
 			Project = project;
 			InitializeComponent();
+			AddMapButton();
 
 			RecreateTrainsUI();
 			RecreateSectionsUI();
@@ -43,8 +45,112 @@ namespace LegoTrainProject
 			}
 		}
 
+		private void AddMapButton()
+		{
+			var mapButton = new ToolStripButton("Track Map", Properties.Resources.icons8_map_pinpoint_96)
+			{
+				ImageTransparentColor = Color.Magenta,
+				ToolTipText = "Show a live map of sections and trains"
+			};
+			mapButton.Click += (s, e) =>
+			{
+				if (mapForm == null || mapForm.IsDisposed)
+				{
+					mapForm = new SectionMapForm(Project);
+					mapForm.Show(FindForm());
+				}
+				else
+					mapForm.Activate();
+			};
+			toolStrip.Items.Add(mapButton);
+
+			var importButton = new ToolStripButton("Import BlueBrick Layout")
+			{
+				ToolTipText = "Create sections from a BlueBrick (.bbm) track layout"
+			};
+			importButton.Click += (s, e) => ImportBlueBrick();
+			toolStrip.Items.Add(importButton);
+
+			// The map belongs to this project; close it when this editor goes away (e.g. project reloaded)
+			Disposed += (s, e) => mapForm?.Close();
+		}
+
+		private void ImportBlueBrick()
+		{
+			if (Project.Sections.IsRunning)
+			{
+				MessageBox.Show("Stop Self-Driving before importing a layout.", "Import BlueBrick Layout");
+				return;
+			}
+
+			string file;
+			using (var dialog = new OpenFileDialog
+			{
+				Title = "Import BlueBrick Layout",
+				Filter = "BlueBrick layouts (*.bbm)|*.bbm|All files (*.*)|*.*",
+				InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+			})
+			{
+				if (dialog.ShowDialog(FindForm()) != DialogResult.OK)
+					return;
+				file = dialog.FileName;
+			}
+
+			BlueBrickImporter.Result result;
+			try
+			{
+				result = BlueBrickImporter.Import(file);
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show("Could not read this layout:\n" + ex.Message, "Import BlueBrick Layout", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return;
+			}
+
+			if (result.Sections.Count == 0)
+			{
+				MessageBox.Show(string.Join("\n", result.Warnings), "Import BlueBrick Layout", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				return;
+			}
+
+			if (Project.Sections.GetAll().Count > 0 &&
+				MessageBox.Show($"This replaces your {Project.Sections.GetAll().Count} existing section(s) and clears all paths. Continue?",
+					"Import BlueBrick Layout", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK)
+				return;
+
+			// Paths and train positions refer to the old sections
+			Project.Sections.GetAll().Clear();
+			Project.Sections.GetAll().AddRange(result.Sections);
+			Project.Sections.Paths.Clear();
+			foreach (Hub h in Project.RegisteredTrains)
+				h.CurrentPath = null;
+
+			RecreateSectionsUI();
+			RecreateTrainsUI();
+			RefreshTrainProperties();
+
+			string summary = $"Imported {result.Sections.Count} sections from {result.Pieces} track pieces " +
+				$"({result.Switches} switches, {result.Crossings} crossings).\n\n" +
+				"Next: pick the sensor at the end of each section, set the switch for sections that split, then create paths.";
+			if (result.Warnings.Count > 0)
+				summary += "\n\nNotes:\n- " + string.Join("\n- ", result.Warnings);
+			MessageBox.Show(summary, "Import BlueBrick Layout", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+			// Show the result
+			if (mapForm == null || mapForm.IsDisposed)
+			{
+				mapForm = new SectionMapForm(Project);
+				mapForm.Show(FindForm());
+			}
+			else
+				mapForm.Activate();
+		}
+
 		public void RecreateSectionsUI()
 		{
+			if (mapForm != null && !mapForm.IsDisposed)
+				mapForm.SectionsChanged();
+
 			flowLayoutPanelSections.Controls.Clear();
 			int totalSections = Project.Sections.GetAll().Count;
 

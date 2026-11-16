@@ -34,3 +34,6 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.7.0.0")]
 [assembly: AssemblyFileVersion("1.7.0.0")]
+
+// Lets the test project set internal members such as Section.Name
+[assembly: InternalsVisibleTo("BAP.Tests")]

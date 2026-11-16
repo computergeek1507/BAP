@@ -7,7 +7,6 @@ using System.Timers;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Storage.Streams;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Linq;
 using System.Threading;
 using static LegoTrainProject.Port;
@@ -94,6 +93,18 @@ namespace LegoTrainProject
 		public double BatteryCurrent = 0;
 
 		/// <summary>
+		/// Firmware version reported by the hub, empty until it answers
+		/// </summary>
+		[NonSerialized]
+		public string FirmwareVersion = "";
+
+		/// <summary>
+		/// Is the hub's own (green) button held down? Null when the hub has not reported it yet
+		/// </summary>
+		[NonSerialized]
+		public bool? PowerButtonPressed;
+
+		/// <summary>
 		/// List of all Ports Connected
 		/// </summary>
 		public List<Port> RegistredPorts = new List<Port>();
@@ -134,7 +145,8 @@ namespace LegoTrainProject
 			WIO = 1005,
 			DACTA = 1006,
 			JRMI = 1007,
-			CRMI = 1008
+			CRMI = 1008,
+			InterfaceC = 1009
 		}
 
 		public enum Types
@@ -155,7 +167,8 @@ namespace LegoTrainProject
 			WIO = 10,
 			DACTA = 11,
 			JRMI = 12,
-			CRMI = 13
+			CRMI = 13,
+			InterfaceC = 14
 		}
 
 		/// <summary>
@@ -323,12 +336,6 @@ namespace LegoTrainProject
 			}
 		}
 
-
-
-
-
-
-
 		//////////////////////////////////////////
 		////
 		////
@@ -342,12 +349,6 @@ namespace LegoTrainProject
 		//////////////////////////////////////////
 
 
-
-
-
-
-
-
 		/// <summary>
 		/// Enable Notifications from Train Characteristics
 		/// </summary>
@@ -355,7 +356,6 @@ namespace LegoTrainProject
         {
             try
             {
-
 				// Assign the device to this hub
 				Device = device;
 
@@ -368,7 +368,6 @@ namespace LegoTrainProject
 				// If it succeeded
 				if (Characteristic != null)
 				{
-
 					Thread.Sleep(1000);
 
 					// Immediately attach to get all data from the Hub
@@ -397,8 +396,6 @@ namespace LegoTrainProject
 				MainBoard.WriteLine("Exception: " + ex.Message, Color.Red);
 				Dispose();
 			}
-
-
 			OnDataUpdated();
 		}
 
@@ -430,7 +427,6 @@ namespace LegoTrainProject
 				MainBoard.WriteLine("New Hub Found of type " + Enum.GetName(typeof(Hub.Types), Type), Color.Green);
 			}
 		}
-
 
         /// <summary>
         /// Treat Incoming Data from the train
@@ -499,6 +495,8 @@ namespace LegoTrainProject
 
 			if (data[3] == 2)
             {
+				PowerButtonPressed = (data[5] == 1);
+
                 if (data[5] == 1)
                 {
 					MainBoard.WriteLine("Power Button was pressed");
@@ -512,6 +510,9 @@ namespace LegoTrainProject
 				int fwVersion10000224 = BitConverter.ToInt32(new byte[] { 0x24, 0x02, 0x00, 0x10 }, 0);
 				int currentVersion = BitConverter.ToInt32(data, 5);
 
+				// LWP3 packs the version as major.minor.bugfix.build, the last two in BCD
+				FirmwareVersion = $"{(currentVersion >> 28) & 0x7}.{(currentVersion >> 24) & 0xF}.{(currentVersion >> 16) & 0xFF:X2}.{currentVersion & 0xFFFF:X4}";
+
 				//added by Tom Cook if want to show firmware version
 				//MainBoard.WriteLine("Firmware: " + currentVersion, Color.Blue);
 
@@ -522,7 +523,6 @@ namespace LegoTrainProject
 					OnPortTypeUpdate();
 					OnDataUpdated();
 				}
-
 			}
 			else if (data[3] == 0x06)
 			{
@@ -533,10 +533,8 @@ namespace LegoTrainProject
 					BatteryLevel = data[5];
 					updateBatteryLevel = true;   //tag trigger update/refresh of Battery Level
 				}
-
 				OnDataUpdated();
 			}
-
 		}
 
 		private void UpdateBoostMovePortToLatestFirmware()
@@ -571,7 +569,6 @@ namespace LegoTrainProject
             {
                 MainBoard.WriteLine("ERROR in Port Message: " + ex.Message, Color.Red);
             }
-
         }
 
 
@@ -744,24 +741,28 @@ namespace LegoTrainProject
 								case 0x01:
 									{
 										MainBoard.WriteLine("button " + port.Id + " - BUTTON_PLUS was pressed");
+										port.LastButton = RemoteButtons.BUTTON_PLUS;
 										OnRemoteTriggered(this, port, RemoteButtons.BUTTON_PLUS);
 										break;
 									}
 								case 0xff:
 									{
 										MainBoard.WriteLine("button " + port.Id + " - BUTTON_MINUS was pressed");
+										port.LastButton = RemoteButtons.BUTTON_MINUS;
 										OnRemoteTriggered(this, port, RemoteButtons.BUTTON_MINUS);
 										break;
 									}
 								case 0x7f:
 									{
 										MainBoard.WriteLine("button " + port.Id + " - BUTTON_STOP was pressed");
+										port.LastButton = RemoteButtons.BUTTON_STOP;
 										OnRemoteTriggered(this, port, RemoteButtons.BUTTON_STOP);
 										break;
 									}
 								case 0x00:
 									{
 										MainBoard.WriteLine("button " + port.Id + " - ButtonState.RELEASED");
+										port.LastButton = RemoteButtons.BUTTON_RELEASED;
 										OnRemoteTriggered(this, port, RemoteButtons.BUTTON_RELEASED);
 										break;
 									}
@@ -800,10 +801,10 @@ namespace LegoTrainProject
             WriteMessage(message, true);
         }
 
-            /// <summary>
-            /// Send the message to the proper device and characteristic
-            /// </summary>
-            /// <param name="message"></param>
+	    /// <summary>
+	    /// Send the message to the proper device and characteristic
+	    /// </summary>
+	    /// <param name="message"></param>
         protected virtual async void WriteMessage(byte[] message, bool addLength)
         {
             try
@@ -854,8 +855,6 @@ namespace LegoTrainProject
 			MainBoard.registeredBluetoothDevices.RemoveAll(s => s == BluetoothAddress);
 		}
 
-
-
 		//////////////////////////////////////////
 		////
 		////
@@ -868,7 +867,6 @@ namespace LegoTrainProject
 		//////////////////////////////////////////
 
 
-
 		public void SetMotorSpeed(int speed)
 		{
 			if (TrainMotorPort != null)
@@ -876,7 +874,6 @@ namespace LegoTrainProject
 			else
 				MainBoard.WriteLine("Could not start engine as no TRAIN_MOTOR is defined");
 		}
-
 
         /// <summary>
         /// Set Motor Speed for this train
@@ -1262,12 +1259,6 @@ namespace LegoTrainProject
 		////
 		//////////////////////////////////////////
 
-
-
-
-
-
-
 		public async Task<bool> InitNewAutomatedPath(Sections sections, Path path)
 		{
 			int totalSections = sections.GetAll().Count;
@@ -1398,8 +1389,6 @@ namespace LegoTrainProject
 		}
 
 
-
-
 		//////////////////////////////////////////
 		////
 		////
@@ -1410,7 +1399,6 @@ namespace LegoTrainProject
 		////
 		////
 		//////////////////////////////////////////
-
 
 		protected void RegisterDeviceAttachement(Port port, Port.Devices type)
         {
@@ -1518,27 +1506,5 @@ namespace LegoTrainProject
             return null;
         }
 
-        internal static void SaveAll(List<Hub> registeredTrains)
-        {
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new FileStream("./trainAll.txt", FileMode.Create, FileAccess.Write);
-            formatter.Serialize(stream, registeredTrains);
-            stream.Close();
-        }
-
-        internal static List<Hub> LoadAll(string path)
-        {
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Read);
-            List<Hub> trains = null;
-
-            if (stream.Length > 0)
-                trains = (List<Hub>)formatter.Deserialize(stream);
-
-            stream.Close();
-            trains = (trains == null) ? new List<Hub>() : trains;
-
-            return trains;
-        }
     }
 }

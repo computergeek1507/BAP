@@ -57,6 +57,7 @@ namespace LegoTrainProject
         };
 
 		private GamepadController m_gamepad;
+		private GamepadForm m_gamepadForm;
 
 		private MQTTClient m_mqtt = new MQTTClient();
 
@@ -170,6 +171,19 @@ namespace LegoTrainProject
 			{
 				MainBoard.WriteLine("Could not start controller support: " + ex.Message, Color.Orange);
 			}
+
+			helpToolStripMenuItem.DropDownItems.Insert(1, new ToolStripMenuItem("Xbox Controller Buttons...", null, (s, e) => ShowGamepadForm()));
+		}
+
+		private void ShowGamepadForm()
+		{
+			if (m_gamepadForm == null || m_gamepadForm.IsDisposed)
+			{
+				m_gamepadForm = new GamepadForm(m_gamepad);
+				m_gamepadForm.Show(this);
+			}
+			else
+				m_gamepadForm.Activate();
 		}
 
 		private async void SetupMQTT()
@@ -1497,14 +1511,16 @@ namespace LegoTrainProject
             };
         }
 
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (!currentProject.Save())
-            {
-                saveAsToolStripMenuItem_Click(sender, e);
-            }
-            else
-                WriteLine("Project saved to " + currentProject.Path);
+		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (!currentProject.Save())
+			{
+				saveAsToolStripMenuItem_Click(sender, e);
+			}
+			else 
+			{ 
+				WriteLine("Project saved to " + currentProject.Path);
+			}
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1519,19 +1535,24 @@ namespace LegoTrainProject
             }
         }
 
-        private void createNewProjectToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // We first clean any running program
-            foreach (TrainProgram program in currentProject.Programs)
-                program.Stop();
+		private void createNewProjectToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			// We first clean any running program
+			foreach (TrainProgram program in currentProject.Programs)
+			{
+				program.Stop();
+			}
 
-            // Create a fresh project
-            TrainProject newProject = new TrainProject();
+			// Create a fresh project
+			TrainProject newProject = new TrainProject();
 
-            foreach (Hub train in currentProject.RegisteredTrains)
-                if (train.IsConnected)
-                    newProject.RegisteredTrains.Add(train);
-
+			foreach (Hub train in currentProject.RegisteredTrains)
+			{
+				if (train.IsConnected)
+				{
+					newProject.RegisteredTrains.Add(train);
+				}
+			}
             currentProject = newProject;
 
             // And refresh the UI
@@ -1642,19 +1663,30 @@ namespace LegoTrainProject
 			}
 		}
 
-		private void howToConnectToEV3ViaBluetoothToolStripMenuItem_Click(object sender, EventArgs e)
+		/// <summary>
+		/// Open a web link in the default browser.
+		/// .NET (Core) no longer shell-executes by default, so Process.Start(url) alone throws.
+		/// </summary>
+		internal static void OpenUrl(string url)
 		{
-			System.Diagnostics.Process.Start("https://www.mathworks.com/help/supportpkg/legomindstormsev3io/ug/connect-to-an-ev3-brick-over-bluetooth-using-windows-1.html");
+			try
+			{
+				System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show("Could not open " + url + "\n\n" + ex.Message, "Open link", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			}
 		}
 
 		private void howToUseTheSelfDrivingTrainModuleToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			System.Diagnostics.Process.Start("https://www.eurobricks.com/forum/index.php?/forums/topic/169767-lego-train-full-layout-automation-a-break-down/");
+			OpenUrl("https://www.eurobricks.com/forum/index.php?/forums/topic/169767-lego-train-full-layout-automation-a-break-down/");
 		}
 
 		private void howToUseTheProgramAndCustomEventsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			System.Diagnostics.Process.Start("https://www.eurobricks.com/forum/index.php?/forums/topic/169537-automation-practical-example-of-train-automation-using-only-powered-up-devices");
+			OpenUrl("https://www.eurobricks.com/forum/index.php?/forums/topic/169537-automation-practical-example-of-train-automation-using-only-powered-up-devices");
 		}
 
 		private void limitDevicesPairingToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1741,10 +1773,15 @@ namespace LegoTrainProject
 				case Hub.Types.CRMI:
 					newHub = new CRMIHub(null, Hub.Types.CRMI, currentProject, name);
 					break;
+				case Hub.Types.InterfaceC:
+					newHub = new InterfaceCHub(null, Hub.Types.InterfaceC, currentProject, name);
+					break;
 			}
 
 			if (newHub == null)
+			{
 				return;
+			}
 			//EV3Hub h = new EV3Hub(null, Hub.Types.EV3, currentProject, name);
 			newHub.TryToConnect();
 

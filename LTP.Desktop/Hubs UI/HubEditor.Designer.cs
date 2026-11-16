@@ -1,6 +1,4 @@
-﻿using Windows.UI.Xaml.Controls;
-
-namespace LegoTrainProject
+﻿namespace LegoTrainProject
 {
 	partial class HubEditor
 	{

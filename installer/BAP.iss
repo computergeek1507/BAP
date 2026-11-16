@@ -1,6 +1,6 @@
 ; Inno Setup script for The Brick Automation Project (BAP)
 ; Build locally:   iscc installer\BAP.iss
-; Build in CI:     iscc /DMyAppVersion=1.7.0.0 /DBuildDir=..\bin\Release installer\BAP.iss
+; Build in CI:     iscc /DMyAppVersion=1.7.0.0 /DBuildDir=..\out\Release installer\BAP.iss
 
 #define MyAppName      "The Brick Automation Project"
 #define MyAppShortName "BAP"
@@ -8,7 +8,7 @@
 #define MyAppURL       "https://github.com/computergeek1507/BAP"
 
 #ifndef BuildDir
-  #define BuildDir "..\bin\Release"
+  #define BuildDir "..\out\Release"
 #endif
 
 #ifndef MyAppVersion
@@ -42,6 +42,8 @@ PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 ; Bluetooth LE via WinRT needs Windows 10 or later
 MinVersion=10.0
+; Self-contained win-x64 build
+ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 CloseApplications=yes
 VersionInfoVersion={#MyAppVersion}
@@ -59,12 +61,10 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "{app}"; Permissions: users-modify
 
 [Files]
-Source: "{#BuildDir}\*.exe";    DestDir: "{app}"; Flags: ignoreversion
-Source: "{#BuildDir}\*.dll";    DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
-Source: "{#BuildDir}\*.config"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
-Source: "{#BuildDir}\*.winmd";  DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
-Source: "..\BAP.ico";           DestDir: "{app}"; Flags: ignoreversion
-Source: "..\LICENSE";           DestDir: "{app}"; DestName: "LICENSE.txt"; Flags: ignoreversion
+; Self-contained .NET publish output (includes the runtime and its subfolders)
+Source: "{#BuildDir}\*"; Excludes: "*.pdb"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\BAP.ico";   DestDir: "{app}"; Flags: ignoreversion
+Source: "..\LICENSE";   DestDir: "{app}"; DestName: "LICENSE.txt"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}";                Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\BAP.ico"
@@ -77,27 +77,6 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#MyAppName}}
 [UninstallDelete]
 Type: files; Name: "{app}\connectionSettings.bap"
 
-[Code]
-// .NET Framework 4.8 = Release DWORD >= 528040
-function IsDotNet48Installed(): Boolean;
-var
-  Release: Cardinal;
-begin
-  Result := RegQueryDWordValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full', 'Release', Release)
-            and (Release >= 528040);
-end;
-
-function InitializeSetup(): Boolean;
-var
-  ErrCode: Integer;
-begin
-  Result := True;
-  if not IsDotNet48Installed() then
-  begin
-    if MsgBox('{#MyAppName} requires the Microsoft .NET Framework 4.8, which was not found.' + #13#10#13#10 +
-              'Open the download page now? Setup will exit; run it again after installing .NET 4.8.',
-              mbConfirmation, MB_YESNO) = IDYES then
-      ShellExec('open', 'https://dotnet.microsoft.com/download/dotnet-framework/net48', '', '', SW_SHOWNORMAL, ewNoWait, ErrCode);
-    Result := False;
-  end;
-end;
+[InstallDelete]
+; Clear out files from older .NET Framework builds before installing
+Type: files; Name: "{app}\LegoTrainProject.exe.config"

@@ -14,4 +14,69 @@
   <PropertyGroup>
     <EnableSecurityDebugging>false</EnableSecurityDebugging>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="LTP.Desktop\Hubs UI\HubControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Hubs UI\HubEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Hubs UI\HubInfoForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Hubs UI\NetworkEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Hubs UI\SerialEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Main UI\ConnectionLimit.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Main UI\FormCodeEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Main UI\FormWelcome.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Main UI\GamepadForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Main UI\MainBoard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Main UI\SplashForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Program\ToolStripProgram.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Sections UI\ListSelection.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Sections UI\PathEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Sections UI\SectionControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Sections UI\SectionMapForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Sections UI\SectionsEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Sections UI\SwitchSetup.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Sections UI\TrainOptions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Sections UI\TrainSectionBehavior.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LTP.Desktop\Sections UI\TrainSectionControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>

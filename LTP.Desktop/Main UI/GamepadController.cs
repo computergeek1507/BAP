@@ -49,6 +49,26 @@ namespace LegoTrainProject
 
 		public void Start() => timer.Start();
 
+		//////////////////////////////////////////
+		//// Live status, shown by GamepadForm
+		//////////////////////////////////////////
+
+		public bool IsConnected => userIndex >= 0;
+
+		/// <summary>Controller slot as Windows numbers it (1-4), 0 when none is connected</summary>
+		public int ControllerNumber => userIndex + 1;
+
+		/// <summary>Buttons held down right now</summary>
+		public Buttons HeldButtons => IsConnected ? (Buttons)lastButtons : 0;
+
+		/// <summary>Left stick up/down past the dead zone: +1 up, -1 down, 0 centered</summary>
+		public int LeftStickDirection { get; private set; }
+
+		/// <summary>Name of the train the controller is driving, null when there is none</summary>
+		public string SelectedTrainName => IsUsable(selected) ? TrainName : null;
+
+		public int SelectedTrainSpeed => IsUsable(selected) ? CurrentSpeed() : 0;
+
 		public void Dispose()
 		{
 			timer.Stop();
@@ -85,10 +105,12 @@ namespace LegoTrainProject
 				MainBoard.WriteLine($"Controller {userIndex + 1} disconnected", Color.Orange);
 				userIndex = -1;
 				rescanCountdown = 0;
+				LeftStickDirection = 0;
 				return;
 			}
 
 			var pad = state.Gamepad;
+			LeftStickDirection = Math.Abs((int)pad.sThumbLY) > StickDeadzone ? Math.Sign(pad.sThumbLY) : 0;
 			ushort pressed = (ushort)(pad.wButtons & ~lastButtons);
 			lastButtons = pad.wButtons;
 
@@ -209,7 +231,7 @@ namespace LegoTrainProject
 		//////////////////////////////////////////
 
 		[Flags]
-		private enum Buttons : ushort
+		public enum Buttons : ushort
 		{
 			DPadUp = 0x0001, DPadDown = 0x0002, DPadLeft = 0x0004, DPadRight = 0x0008,
 			Start = 0x0010, Back = 0x0020, LeftThumb = 0x0040, RightThumb = 0x0080,

@@ -30,7 +30,7 @@ namespace LegoTrainProject
 			listBoxSerialHubs.Items.Clear();
 			foreach (var hub in m_train.RegisteredTrains)
 			{
-				if (hub.Type == Hub.Types.DACTA || hub.Type == Hub.Types.EV3 || hub.Type == Hub.Types.WIO || hub.Type == Hub.Types.JRMI || hub.Type == Hub.Types.CRMI)
+				if (hub.Type == Hub.Types.InterfaceC || hub.Type == Hub.Types.DACTA || hub.Type == Hub.Types.EV3 || hub.Type == Hub.Types.WIO || hub.Type == Hub.Types.JRMI || hub.Type == Hub.Types.CRMI)
 				{
 					listBoxSerialHubs.Items.Add($"{hub.Type}: {hub.DeviceId}");
 				}
@@ -98,8 +98,17 @@ namespace LegoTrainProject
 			}
 			RedrawItems();
 		}
+		private void toolStripButtonInterfaceC_Click(object sender, EventArgs e)
+		{
+			ListSelection dlg = new ListSelection("Select Serial Port", SerialPort.GetPortNames());
+			if (dlg.ShowDialog() == DialogResult.OK)
+			{
+				OnHubAdded(dlg.ListItemSelected, Hub.Types.InterfaceC);
+			}
+			RedrawItems();
+		}
 
-        private void listBoxSerialHubs_SelectedIndexChanged(object sender, EventArgs e)
+		private void listBoxSerialHubs_SelectedIndexChanged(object sender, EventArgs e)
         {
 			if (listBoxSerialHubs.Items.Count == 0)
 			{

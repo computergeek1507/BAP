@@ -15,11 +15,17 @@ namespace LegoTrainProject.Main_UI
 		public FormWelcome()
 		{
 			InitializeComponent();
+
+			Version appVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+			richTextBox2.Text =
+				$"The Brick Automation Project v{appVersion.Major}.{appVersion.Minor}\n" +
+				$"Running on {System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}\n\n" +
+				richTextBox2.Text;
 		}
 
 		private void buttonDonate_Click(object sender, EventArgs e)
 		{
-			System.Diagnostics.Process.Start("https://www.paypal.me/vincentvergonjeanne");
+			//MainBoard.OpenUrl("https://www.paypal.me/vincentvergonjeanne");
 		}
 
 		private void button1_Click(object sender, EventArgs e)
@@ -34,7 +40,7 @@ namespace LegoTrainProject.Main_UI
 
         private void richTextBox2_LinkClicked(object sender, LinkClickedEventArgs e)
         {
-			System.Diagnostics.Process.Start(e.LinkText);			
+			MainBoard.OpenUrl(e.LinkText);
 		}
     }
 }

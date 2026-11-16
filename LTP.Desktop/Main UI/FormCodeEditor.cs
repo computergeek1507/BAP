@@ -50,7 +50,7 @@ namespace LegoTrainProject
 			fastColoredTextBox1.Selection.SetStyle(BrownStyle, @"""""|@""""|''|@"".*?""|(?<!@)(?<range>"".*?[^\\]"")|'.*?[^\\]'");
 			fastColoredTextBox1.Selection.SetStyle(MagentaStyle, @"\b\d+[\.]?\d*([eE]\-?\d+)?[lLdDfF]?\b|\b0x[a-fA-F\d]+\b");
 
-			fastColoredTextBox1.Selection = new Range(fastColoredTextBox1, 0);
+			fastColoredTextBox1.Selection = new FastColoredTextBoxNS.Range(fastColoredTextBox1, 0);
 
 			// if Globa Code is null, it means we are editing the global code itself
 			buttonTestCode.Text = (GlobalCode == null) ? "Compile Code" : "Run Code";
