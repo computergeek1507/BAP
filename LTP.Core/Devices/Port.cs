@@ -78,6 +78,12 @@ namespace LegoTrainProject
 		public Label label;
 
 		/// <summary>
+		/// Latest state of a remote's button group on this port, null until the first report
+		/// </summary>
+		[NonSerialized]
+		public RemoteButtons? LastButton;
+
+		/// <summary>
 		/// Public Speed 
 		/// </summary>
 		[NonSerialized]

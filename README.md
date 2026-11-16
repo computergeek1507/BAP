@@ -1,14 +1,20 @@
 # The Brick Automation Project
 
 ## Version 1.7 Change Notes
-* DACTA Hub
-* BuWizz3 Hub 
+* BuWizz 3 Hub
 * MQTT Hubs - Rocrail/JMRI Commands
 * CMRI Serial Hub
-  
+* DACTA Hub
+* Interface C Serial Hub
+* Upgraded to .NET 10 (self-contained build, no separate .NET install needed)
+* Projects and settings now save as JSON; older project files still open
+* Live Track Map for Self-Driving
+* Import track layouts from BlueBrick (.bbm)
+* Xbox controller support, with a button guide under Help > Xbox Controller Buttons
+* Hub Info dialog with controller details and live button status (click a hub's status icon)
+
 #### TODO
 * PU Light to PF IR support.
-* Xbox controller support.
 
 ## Version 1.6 Change Notes
 * Changed tracking of Bluetooth devices by address and advertising to eliminate tracking duplicates

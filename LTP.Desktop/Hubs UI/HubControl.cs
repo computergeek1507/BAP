@@ -46,6 +46,28 @@ namespace LegoTrainProject
 
 			InitializeComponent();
 			InitControl();
+
+			// Clicking the status icon opens the Hub Info dialog
+			pictureBoxStatus.Cursor = Cursors.Hand;
+			pictureBoxStatus.Click += (s, e) => ShowHubInfo();
+			new ToolTip().SetToolTip(pictureBoxStatus, "Hub info and button status");
+
+			ContextMenuStrip menu = new ContextMenuStrip();
+			menu.Items.Add("Hub Info...", null, (s, e) => ShowHubInfo());
+			ContextMenuStrip = menu;
+		}
+
+		HubInfoForm InfoForm;
+
+		private void ShowHubInfo()
+		{
+			if (InfoForm == null || InfoForm.IsDisposed)
+			{
+				InfoForm = new HubInfoForm(Hub);
+				InfoForm.Show(FindForm());
+			}
+			else
+				InfoForm.Activate();
 		}
 
 		private void InitControl()
@@ -596,12 +618,13 @@ namespace LegoTrainProject
 
 				//added by Tom Cook to show battery Volts and mAmps and to force initialization if necessary since System Hubs do not update
 				this.Visible = true;
-				if (Hub.Type != Hub.Types.WEDO_2_SMART_HUB && Hub.Type != Hub.Types.DACTA && Hub.Type != Hub.Types.JRMI && Hub.Type != Hub.Types.CRMI)
+				if (Hub.Type != Hub.Types.WEDO_2_SMART_HUB && Hub.Type != Hub.Types.DACTA && Hub.Type != Hub.Types.JRMI && Hub.Type != Hub.Types.CRMI
+					&& Hub.Type != Hub.Types.InterfaceC)
 					lblVolts.Text = $"{train.BatteryVoltage:F2}" + " V";
 				else
 					lblVolts.Text = "";
 				//Remotes to not have current sensor, so do not display mAmps
-				if (Hub.Type != Hub.Types.POWERED_UP_REMOTE && Hub.Type != Hub.Types.WEDO_2_SMART_HUB && Hub.Type != Hub.Types.DACTA && Hub.Type != Hub.Types.JRMI && Hub.Type != Hub.Types.CRMI)
+				if (Hub.Type != Hub.Types.POWERED_UP_REMOTE && Hub.Type != Hub.Types.WEDO_2_SMART_HUB && Hub.Type != Hub.Types.DACTA && Hub.Type != Hub.Types.JRMI && Hub.Type != Hub.Types.CRMI && Hub.Type != Hub.Types.InterfaceC)
 					lblAmps.Text = $"{train.BatteryCurrent:F0}" + " mA";
 				else
 					lblAmps.Text = "";
@@ -751,6 +774,7 @@ namespace LegoTrainProject
 		{
 			Hub.PortTypeUpdated -= RefreshUI;
 			Hub.DataUpdated -= UpdateLabels;
+			InfoForm?.Close();
 		}
 
 		private void buttonDisconnect_Click(object sender, EventArgs e)

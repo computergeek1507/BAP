@@ -56,7 +56,6 @@ namespace LegoTrainProject
 			this.showBluetoothConnectionDebugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-			this.howToConnectToEV3ViaBluetoothToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.howToUseTheSelfDrivingTrainModuleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.howToUseTheProgramAndCustomEventsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -289,7 +288,6 @@ namespace LegoTrainProject
 			// 
 			this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.aboutToolStripMenuItem1,
-            this.howToConnectToEV3ViaBluetoothToolStripMenuItem,
             this.howToUseTheSelfDrivingTrainModuleToolStripMenuItem,
             this.howToUseTheProgramAndCustomEventsToolStripMenuItem});
 			this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
@@ -302,13 +300,6 @@ namespace LegoTrainProject
 			this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(471, 34);
 			this.aboutToolStripMenuItem1.Text = "About";
 			this.aboutToolStripMenuItem1.Click += new System.EventHandler(this.aboutToolStripMenuItem1_Click);
-			// 
-			// howToConnectToEV3ViaBluetoothToolStripMenuItem
-			// 
-			this.howToConnectToEV3ViaBluetoothToolStripMenuItem.Name = "howToConnectToEV3ViaBluetoothToolStripMenuItem";
-			this.howToConnectToEV3ViaBluetoothToolStripMenuItem.Size = new System.Drawing.Size(471, 34);
-			this.howToConnectToEV3ViaBluetoothToolStripMenuItem.Text = "How to connect to EV3 via Bluetooth?";
-			this.howToConnectToEV3ViaBluetoothToolStripMenuItem.Click += new System.EventHandler(this.howToConnectToEV3ViaBluetoothToolStripMenuItem_Click);
 			// 
 			// howToUseTheSelfDrivingTrainModuleToolStripMenuItem
 			// 
@@ -458,7 +449,6 @@ namespace LegoTrainProject
 		private System.Windows.Forms.ToolStripMenuItem devicesToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem connectToEV3HubToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem howToConnectToEV3ViaBluetoothToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem howToUseTheSelfDrivingTrainModuleToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem howToUseTheProgramAndCustomEventsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem limitDevicesPairingToolStripMenuItem;
